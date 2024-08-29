@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.db import models
 
 User = get_user_model()
@@ -50,6 +51,17 @@ class Beast(models.Model):
                 fields=('owner', 'name')
             ),
         )
+
+    @property
+    def in_nest(self):
+        return not bool(
+            cache.get(
+                settings.BEAST_ACTION_KEY.format(beast=self),
+                None))
+
+    def increase_experients(self, amount):
+        self.experience += amount
+        self.save()
 
     def __str__(self):
         return f'Чудовище {self.name} созданное {self.owner.username}'

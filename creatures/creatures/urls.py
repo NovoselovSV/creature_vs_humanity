@@ -5,9 +5,9 @@ from django.urls import include, path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('core/', include('core.urls')),
-    # path('area/', include('area.urls')),
-    # path('beast/', include('beast.urls')),
-    # path('nest/', include('nest.urls')),
+    path('area/', include('area.urls')),
+    path('beast/', include('beast.urls')),
+    path('nest/', include('nest.urls')),
 ]
 
 if settings.DEBUG:

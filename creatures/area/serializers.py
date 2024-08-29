@@ -9,6 +9,7 @@ class AreaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Area
         fields = (
+            'id',
             'name',
             'description',
             'attacker_attack_impact',

@@ -10,7 +10,8 @@ class Area(models.Model):
 
     name = models.CharField(
         verbose_name='Название',
-        max_length=settings.MAX_AREA_NAMES_LENGTH
+        max_length=settings.MAX_AREA_NAMES_LENGTH,
+        unique=True
     )
     description = models.TextField(verbose_name='Описание')
     attacker_attack_impact = models.IntegerField(
