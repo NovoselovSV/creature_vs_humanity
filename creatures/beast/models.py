@@ -59,11 +59,11 @@ class Beast(models.Model):
                 settings.BEAST_ACTION_KEY.format(beast=self),
                 None))
 
-    def increase_experients(self, amount):
+    def increase_experience(self, amount):
         self.experience += amount
         self.save()
 
-    def decrease_experients(self, amount):
+    def decrease_experience(self, amount):
         self.experience -= amount
         self.save()
 

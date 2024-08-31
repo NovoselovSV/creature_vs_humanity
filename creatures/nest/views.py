@@ -7,6 +7,7 @@ from rest_framework.response import Response
 
 from . import serializers
 from .models import Nest
+from .tasks import create_creature
 from beast.serializers import BeastBirthSerializer
 from core.exceptions import BusyException, NotEnoughException
 
@@ -37,12 +38,14 @@ class NestViewSet(viewsets.ReadOnlyModelViewSet):
             data=request.data, context={'request': request})
         new_creature_serializer.is_valid(raise_exception=True)
         nest.decrease_birth_process(settings.BIRTH_PROCESS_TO_APPEAR)
-        new_creature_serializer.save(nest=nest)
+        key = settings.BIRTH_KEY.format(nest=nest)
         cache.set(
-            settings.BIRTH_KEY.format(
-                nest=nest),
-            True,
-            settings.BIRTH_TIME)
-        return Response(
-            data=new_creature_serializer.data,
-            status=status.HTTP_201_CREATED)
+            key,
+            create_creature.apply_async(
+                (nest.id,
+                 new_creature_serializer.data,
+                 key),
+                countdown=settings.BIRTH_TIME),
+            settings.BIRTH_TIME *
+            settings.BUFFER_MULTIPLY)
+        return Response(status=status.HTTP_201_CREATED)

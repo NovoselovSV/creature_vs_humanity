@@ -14,8 +14,8 @@ class NestWriteSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Nest
-        fields = ('id', 'owner', 'name', 'new_creature_birth_process', 'area')
-        read_only_fields = ('id', 'new_creature_birth_process',)
+        fields = ('owner', 'name', 'new_creature_birth_process', 'area')
+        read_only_fields = ('new_creature_birth_process',)
 
     def to_representation(self, nest):
         return NestReadSerializer(nest, context=self.context).data

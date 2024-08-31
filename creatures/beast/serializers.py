@@ -35,6 +35,14 @@ class BeastSerializer(serializers.ModelSerializer):
             'in_nest')
 
 
+class BeastWithoutNotOwnerFKsSerializer(serializers.ModelSerializer):
+    """Full beast instanse without not owner FKs."""
+
+    class Meta:
+        model = Beast
+        exclude = ('nest',)
+
+
 class BeastBirthSerializer(serializers.ModelSerializer):
     """Beast birth serializer"""
 
@@ -48,7 +56,7 @@ class BeastBirthSerializer(serializers.ModelSerializer):
             'description')
 
     def to_representation(self, beast):
-        return BeastSerializer(beast).data
+        return BeastWithoutNotOwnerFKsSerializer(beast).data
 
 
 class BeastLevelUpAbilitySerializer(serializers.Serializer):

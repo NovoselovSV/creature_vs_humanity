@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import Response
 
-from . import serializers
+from . import serializers, tasks
 from .models import Beast
 from core.exceptions import BusyException, NotEnoughException
 from nest.serializers import NestWriteSerializer
@@ -25,21 +25,14 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
     @action(methods=('patch',), detail=True)
     def get_resources_for_nest(self, request, pk):
         beast = self.get_free_beast(request, pk)
-        cache.set(
-            settings.BEAST_ACTION_KEY.format(beast=beast),
-            True,
-            settings.BEAST_ACTING_TIME)
-        beast.nest.inrease_birth_process(settings.EARNING_BIRTH_PROCESS)
+        self.add_task_for_beast(
+            beast, tasks.obtain_resources_for_nest, beast.id)
         return Response(status=status.HTTP_200_OK)
 
     @action(methods=('patch',), detail=True)
     def get_stronger(self, request, pk):
         beast = self.get_free_beast(request, pk)
-        cache.set(
-            settings.BEAST_ACTION_KEY.format(beast=beast),
-            True,
-            settings.BEAST_ACTING_TIME)
-        beast.increase_experients(settings.EARNING_EXPERIENCE)
+        self.add_task_for_beast(beast, tasks.obtain_experience, beast.id)
         return Response(status=status.HTTP_200_OK)
 
     @action(methods=('post',), detail=True)
@@ -53,15 +46,15 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
             raise NotEnoughException(
                 f'You need at least {settings.MIN_CREATURE_TO_NEW_NEST} '
                 f'creatures in {beast.nest} to create another one')
-        cache.set(
-            settings.BEAST_ACTION_KEY.format(beast=beast),
-            True,
-            settings.BEAST_ACTING_TIME)
         new_nest = NestWriteSerializer(
             data=request.data, context={'request': request})
         new_nest.is_valid(raise_exception=True)
-        new_nest.save()
-        return Response(data=new_nest, status=status.HTTP_201_CREATED)
+        self.add_task_for_beast(beast,
+                                tasks.create_nest,
+                                beast.id,
+                                request.user.id,
+                                new_nest.data)
+        return Response(status=status.HTTP_201_CREATED)
 
     @action(methods=('patch',), detail=True)
     def level_up(self, request, pk):
@@ -77,6 +70,15 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
                 'to level up')
         beast.level_up(ability_name)
         return Response(status=status.HTTP_200_OK)
+
+    def add_task_for_beast(self, beast, task, *args):
+        key = settings.BEAST_ACTION_KEY.format(beast=beast)
+        cache.set(
+            key,
+            task.apply_async(
+                (*args, key),
+                countdown=settings.BEAST_ACTING_TIME),
+            settings.BEAST_ACTING_TIME * settings.BUFFER_MULTIPLY)
 
     def get_free_beast(self, request, pk):
         beast = get_object_or_404(
