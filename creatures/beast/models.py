@@ -63,5 +63,18 @@ class Beast(models.Model):
         self.experience += amount
         self.save()
 
+    def decrease_experients(self, amount):
+        self.experience -= amount
+        self.save()
+
+    def level_up(self, ability_name):
+        self.decrease_experients(settings.NEW_LEVEL_EXPERIENTS)
+        setattr(
+            self,
+            ability_name,
+            getattr(self, ability_name) +
+            settings.LVL_UP_ABILITY_NAME_VALUE[ability_name])
+        self.save()
+
     def __str__(self):
         return f'Чудовище {self.name} созданное {self.owner.username}'
