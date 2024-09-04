@@ -6,6 +6,7 @@ from sqlalchemy.orm import ColumnProperty
 from wtforms.fields import PasswordField
 from wtforms.fields.core import UnboundField
 
+from data.region import Region
 from data.user import User
 
 
@@ -21,3 +22,7 @@ class AdditionalPasswordConverter(ModelConverter):
 class UserAdmin(ModelView, model=User):
     form_converter = AdditionalPasswordConverter
     column_exclude_list = ('password',)
+
+
+class RegionAdmin(ModelView, model=Region):
+    column_list = '__all__'

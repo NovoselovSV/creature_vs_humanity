@@ -7,6 +7,7 @@ from SQL_db.database import Base, engine
 
 class User(Base):
     """ORM user model."""
+
     __tablename__ = 'users'
 
     id = Column(Integer, primary_key=True)
@@ -25,6 +26,7 @@ class User(Base):
 
 class UserBaseSchema(BaseModel):
     """Base openAPI schema of user."""
+
     username: str
     email: str
 
