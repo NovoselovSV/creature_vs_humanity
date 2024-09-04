@@ -1,11 +1,14 @@
+from typing import List
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy.orm import Mapped, relationship
 
 from SQL_db.database import Base, engine
+import data
 
 
 class Region(Base):
-    """ORM user model."""
+    """ORM region model."""
 
     __tablename__ = 'regions'
 
@@ -16,6 +19,11 @@ class Region(Base):
     attacker_defense_impact = Column(Integer, default=0)
     defender_attack_impact = Column(Integer, default=0)
     defender_defense_impact = Column(Integer, default=0)
+
+    hqs: Mapped[List['data.headquarter.Headquarter']] = relationship()
+
+    def __str__(self):
+        return f'{self.name}'
 
 
 class RegionSchema(BaseModel):

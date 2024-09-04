@@ -1,8 +1,11 @@
+from typing import List
 from pydantic import BaseModel
 from sqlalchemy import Boolean, Column, Integer, String
+from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy_utils import EmailType, PasswordType
 
 from SQL_db.database import Base, engine
+import data
 
 
 class User(Base):
@@ -22,6 +25,11 @@ class User(Base):
     ))
     email = Column(EmailType)
     is_admin = Column(Boolean)
+
+    hqs: Mapped[List['data.headquarter.Headquarter']] = relationship()
+
+    def __str__(self):
+        return f'{self.username}'
 
 
 class UserBaseSchema(BaseModel):

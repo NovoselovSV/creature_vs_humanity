@@ -6,6 +6,7 @@ from sqlalchemy.orm import ColumnProperty
 from wtforms.fields import PasswordField
 from wtforms.fields.core import UnboundField
 
+from data.headquarter import Headquarter
 from data.region import Region
 from data.user import User
 
@@ -26,3 +27,7 @@ class UserAdmin(ModelView, model=User):
 
 class RegionAdmin(ModelView, model=Region):
     column_list = '__all__'
+
+
+class HeadquarterAdmin(ModelView, model=Headquarter):
+    column_exclude_list = '__all__'
