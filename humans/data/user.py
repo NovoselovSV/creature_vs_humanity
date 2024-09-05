@@ -27,6 +27,8 @@ class User(Base):
     is_admin = Column(Boolean)
 
     hqs: Mapped[List['data.headquarter.Headquarter']] = relationship()
+    groups: Mapped[List['data.group.Group']] = relationship()
+    units: Mapped[List['data.unit.Unit']] = relationship()
 
     def __str__(self):
         return f'{self.username}'

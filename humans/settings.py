@@ -8,3 +8,6 @@ ACCESS_TOKEN_EXPIRE_DAYS = 1
 pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='users/login')
+
+START_UNIT_HEALTH = 10
+START_UNIT_ATTACK = 20

@@ -5,8 +5,9 @@ from sqlalchemy.orm import Session
 from SQL_db.database import get_db
 from data.headquarter import HeadquarterReadSchema
 from data.user import User
-from service.headquarters import get_headquarters
+from service.headquarters import get_headquarter, get_headquarters
 from service.login import get_current_user
+from web.shortcuts import get_error_openapi_response, get_object_or_404
 
 router = APIRouter(prefix='/headquarters')
 
@@ -19,23 +20,32 @@ def headquarters(
     return get_headquarters(db, current_user.id)
 
 
-# @router.get('/{headquarter_id}',
-#             response_model=HeadquarterReadSchema,
-#             responses={status.HTTP_404_NOT_FOUND: {'model': ErrorMessageSchema,
-#                                                    'description':
-#                                                    'Item not found'}})
-# def headquarter(headquarter_id: int, db: Session = Depends(get_db)):
-#     return get_object_or_404(get_headquarter, db, headquarter_id)
+@router.get('/{headquarter_id}',
+            response_model=HeadquarterReadSchema,
+            responses=get_error_openapi_response(
+                {status.HTTP_404_NOT_FOUND: 'Headquarter not found'}))
+def headquarter(
+        headquarter_id: int,
+        current_user: Annotated[User, Depends(get_current_user)],
+        db: Session = Depends(get_db)):
+    return get_object_or_404(
+        get_headquarter,
+        db,
+        current_user.id,
+        headquarter_id)
 
 
-# @router.post('/deploy_headquarter',
-#              response_model=HeadquarterReadSchema,
+# @router.post('/deploy_unit',
+#              response_model=UnitCreationSchema,
 #              status_code=status.HTTP_201_CREATED,
-#              responses={status.HTTP_400_BAD_REQUEST:
-#                         {'model': ErrorMessageSchema,
-#                          'description': 'Username obtained'}})
-# def deploy_headquarter(
+#              responses=get_error_openapi_response(
+#                  {status.HTTP_409_CONFLICT:
+#                   'Not enough recruitment process',
+#                   status.HTTP_400_BAD_REQUEST:
+#                   'You already have squad with this name'}))
+# def deploy_unit(
 #         hq: HeadquarterWriteSchema,
+#         current_user: Annotated[User, Depends(get_current_user)],
 #         db: Session = Depends(get_db)):
 #     if get_headquarter_by_name(db, hq.name):
 #         raise HTTPException(

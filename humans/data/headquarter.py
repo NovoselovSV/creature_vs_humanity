@@ -1,8 +1,11 @@
+from typing import List
+
 from pydantic import BaseModel
 from sqlalchemy import (Column, ForeignKey, Integer, String, UniqueConstraint)
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, relationship
 
 from SQL_db.database import Base
+import data
 from data.region import RegionSchema
 
 
@@ -20,11 +23,13 @@ class Headquarter(Base):
     director = relationship('User', back_populates='hqs')
     region = relationship('Region', back_populates='hqs')
 
+    groups: Mapped[List['data.group.Group']] = relationship()
+
     __table_args__ = (
         UniqueConstraint(
             'director_id',
             'name',
-            name='director_id_name_unique_constraint'),
+            name='director_id_hq_name_unique_constraint'),
     )
 
     def __str__(self):

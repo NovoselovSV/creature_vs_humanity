@@ -1,0 +1,36 @@
+from sqlalchemy.orm import Session
+
+from data.group import Group, GroupWriteSchema
+
+
+def get_groups(db: Session, user_id: int) -> list[Group]:
+    return db.query(Group).filter(Group.director_id == user_id)
+
+
+def get_group(
+        db: Session,
+        user_id: int,
+        group_id: int) -> Group:
+    return db.query(Group).filter(
+        Group.director_id == user_id,
+        Group.id == group_id).first()
+
+
+def get_group_by_name(
+        db: Session,
+        user_id: int,
+        group_name: str) -> Group:
+    return db.query(Group).filter(
+        Group.director_id == user_id,
+        Group.name == group_name).first()
+
+
+def create_group(
+        db: Session,
+        user_id: int,
+        group_data: GroupWriteSchema) -> Group:
+    db_group = Group(**group_data.dict(), director_id=user_id)
+    db.add(db_group)
+    db.commit()
+    db.refresh(db_group)
+    return db_group

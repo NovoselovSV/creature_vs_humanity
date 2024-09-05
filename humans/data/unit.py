@@ -1,0 +1,46 @@
+from pydantic import BaseModel
+from sqlalchemy import Column, ForeignKey, Integer
+from sqlalchemy.orm import relationship
+
+from SQL_db.database import Base
+import settings
+
+
+class Unit(Base):
+    """ORM unit model."""
+
+    __tablename__ = 'units'
+
+    id = Column(Integer, primary_key=True)
+    director_id = Column(ForeignKey('users.id'))
+    expirience = Column(Integer, default=0)
+    health = Column(Integer, default=settings.START_UNIT_HEALTH)
+    attack = Column(Integer, default=settings.START_UNIT_ATTACK)
+    group_id = Column(ForeignKey('groups.id', ondelete='RESTRICT'))
+
+    director = relationship('User', back_populates='units')
+    group = relationship('Group', back_populates='members')
+
+    def __str__(self):
+        return f'Soldier {self.id}'
+
+
+class UnitReadShortSchema(BaseModel):
+    """OpenAPI short schema of unit to read."""
+
+    id: int
+    expirience: int
+    health: int
+    attack: int
+
+
+class UnitReadSchema(UnitReadShortSchema):
+    """OpenAPI schema of unit to read."""
+
+    group_id: int
+
+
+class UnitWriteSchema(BaseModel):
+    """OpenAPI schema of unit to write."""
+
+    group_id: int
