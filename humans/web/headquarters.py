@@ -2,10 +2,20 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from data.group import GroupBuilderSchema, GroupChangeHQSchema
+from service.groups import change_group_dislocation, get_group_on_hq
+from service.units import count_members, create_new_unit
+import settings
 from SQL_db.database import get_db
-from data.headquarter import HeadquarterReadSchema
+from data.headquarter import HeadquarterReadSchema, HeadquarterWriteSchema
+from data.unit import UnitReadSchema, UnitWriteSchema
 from data.user import User
-from service.headquarters import get_headquarter, get_headquarters
+from service.headquarters import (
+    create_new_headquarter,
+    decrease_recruitment_process,
+    get_headquarter,
+    get_headquarter_by_name,
+    get_headquarters)
 from service.login import get_current_user
 from web.shortcuts import get_error_openapi_response, get_object_or_404
 
@@ -35,20 +45,84 @@ def headquarter(
         headquarter_id)
 
 
-# @router.post('/deploy_unit',
-#              response_model=UnitCreationSchema,
-#              status_code=status.HTTP_201_CREATED,
-#              responses=get_error_openapi_response(
-#                  {status.HTTP_409_CONFLICT:
-#                   'Not enough recruitment process',
-#                   status.HTTP_400_BAD_REQUEST:
-#                   'You already have squad with this name'}))
-# def deploy_unit(
-#         hq: HeadquarterWriteSchema,
-#         current_user: Annotated[User, Depends(get_current_user)],
-#         db: Session = Depends(get_db)):
-#     if get_headquarter_by_name(db, hq.name):
-#         raise HTTPException(
-#             status_code=status.HTTP_400_BAD_REQUEST,
-#             detail='This username already obtained')
-#     return create_user(db, hq)
+@router.post('/{headquarter_id}/deploy_unit',
+             response_model=UnitReadSchema,
+             status_code=status.HTTP_201_CREATED,
+             responses=get_error_openapi_response(
+                 {status.HTTP_409_CONFLICT:
+                  'Not enough recruitment process or other problem',
+                  status.HTTP_404_NOT_FOUND:
+                  'Headquarter or group not found'}))
+def deploy_unit(
+        headquarter_id: int,
+        unit_data: UnitWriteSchema,
+        current_user: Annotated[User, Depends(get_current_user)],
+        db: Session = Depends(get_db)):
+    hq = get_object_or_404(
+        get_headquarter,
+        db,
+        current_user.id,
+        headquarter_id)
+    if hq.recruitment_process < settings.RECRUITMENT_PROCESS_TO_NEW_UNIT:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail='Not enough recruitment process')
+    get_object_or_404(
+        get_group_on_hq,
+        db,
+        current_user.id,
+        headquarter_id,
+        unit_data.group_id)
+    decrease_recruitment_process(db, hq.id)
+    return create_new_unit(db, unit_data, current_user.id)
+
+
+@router.post('/{headquarter_id}/deploy_hq',
+             response_model=HeadquarterReadSchema,
+             status_code=status.HTTP_201_CREATED,
+             responses=get_error_openapi_response(
+                 {status.HTTP_409_CONFLICT:
+                  'Not enough recruitment process or other problem',
+                  status.HTTP_404_NOT_FOUND:
+                  'Headquarter or group not found',
+                  status.HTTP_400_BAD_REQUEST:
+                  'Headquarter name already obtained'}))
+def deploy_hq(
+        headquarter_id: int,
+        group_data: GroupBuilderSchema,
+        hq_data: HeadquarterWriteSchema,
+        current_user: Annotated[User, Depends(get_current_user)],
+        db: Session = Depends(get_db)):
+    hq = get_object_or_404(
+        get_headquarter,
+        db,
+        current_user.id,
+        headquarter_id)
+    if hq.recruitment_process < settings.RECRUITMENT_PROCESS_TO_NEW_HQ:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail='Not enough recruitment process')
+    if get_headquarter_by_name(db, current_user.id, hq_data.name):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='You have already obtaine this name')
+    group = get_object_or_404(
+        get_group_on_hq,
+        db,
+        current_user.id,
+        headquarter_id,
+        group_data.group_id)
+    if not count_members(db, group.id):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail='Not enough group members')
+    decrease_recruitment_process(
+        db, hq.id, settings.RECRUITMENT_PROCESS_TO_NEW_HQ)
+    new_hq = create_new_headquarter(db, hq_data, current_user.id)
+    change_group_dislocation(
+        db,
+        current_user.id,
+        group.id,
+        GroupChangeHQSchema(
+            headquarter_id=new_hq.id))
+    return new_hq

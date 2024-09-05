@@ -44,3 +44,9 @@ class UnitWriteSchema(BaseModel):
     """OpenAPI schema of unit to write."""
 
     group_id: int
+
+
+class UnitChangeGroupSchema(BaseModel):
+    """OpenAPI schema of unit to change group."""
+
+    group_id: int

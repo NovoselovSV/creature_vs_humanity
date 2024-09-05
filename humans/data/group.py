@@ -55,3 +55,15 @@ class GroupWriteSchema(BaseModel):
 
     name: str
     headquarter_id: int
+
+
+class GroupBuilderSchema(BaseModel):
+    """OpenAPI schema of group to build HQ."""
+
+    group_id: int
+
+
+class GroupChangeHQSchema(BaseModel):
+    """OpenAPI schema of group to change HQ."""
+
+    headquarter_id: int
