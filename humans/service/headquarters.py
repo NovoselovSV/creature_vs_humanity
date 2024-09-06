@@ -1,6 +1,8 @@
 from sqlalchemy.orm import Session
 
 from data.headquarter import Headquarter, HeadquarterWriteSchema
+from service.shortcuts import create_group_task
+from service.tasks import create_hq_celery, increase_recruitment_celery
 import settings
 
 
@@ -27,15 +29,14 @@ def get_headquarter_by_name(
 
 
 def increase_recruitment_process(
-        db: Session,
+        group_id: int,
         headquarter_id: int,
-        amount_unit: int) -> None:
-    db.query(Headquarter).filter(Headquarter.id ==
-                                 headquarter_id).update(
-        {'recruitment_process':
-            Headquarter.recruitment_process +
-            settings.EARN_RECRUITMENT_PROCESS * amount_unit})
-    db.commit()
+        amount_units: int) -> None:
+    create_group_task(
+        group_id,
+        increase_recruitment_celery,
+        headquarter_id,
+        amount_units)
 
 
 def decrease_recruitment_process(
@@ -51,11 +52,12 @@ def decrease_recruitment_process(
 
 
 def create_new_headquarter(
-        db: Session,
+        group_id: int,
         hq_data: HeadquarterWriteSchema,
-        director_id: int) -> Headquarter:
-    db_hq = Headquarter(**hq_data.dict(), director_id=director_id)
-    db.add(db_hq)
-    db.commit()
-    db.refresh(db_hq)
-    return db_hq
+        director_id: int) -> None:
+    create_group_task(
+        group_id,
+        create_hq_celery,
+        hq_data.dict(),
+        director_id,
+        group_id)

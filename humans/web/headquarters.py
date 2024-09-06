@@ -17,7 +17,7 @@ from service.headquarters import (
     get_headquarter_by_name,
     get_headquarters)
 from service.login import get_current_user
-from web.shortcuts import get_error_openapi_response, get_object_or_404
+from web.shortcuts import check_hq_availability, get_error_openapi_response, get_object_or_404
 
 router = APIRouter(prefix='/headquarters')
 
@@ -46,7 +46,6 @@ def headquarter(
 
 
 @router.post('/{headquarter_id}/deploy_unit',
-             response_model=UnitReadSchema,
              status_code=status.HTTP_201_CREATED,
              responses=get_error_openapi_response(
                  {status.HTTP_409_CONFLICT:
@@ -73,12 +72,12 @@ def deploy_unit(
         current_user.id,
         headquarter_id,
         unit_data.group_id)
+    check_hq_availability(hq.id)
     decrease_recruitment_process(db, hq.id)
-    return create_new_unit(db, unit_data, current_user.id)
+    create_new_unit(hq.id, unit_data, current_user.id)
 
 
 @router.post('/{headquarter_id}/deploy_hq',
-             response_model=HeadquarterReadSchema,
              status_code=status.HTTP_201_CREATED,
              responses=get_error_openapi_response(
                  {status.HTTP_409_CONFLICT:
@@ -118,11 +117,4 @@ def deploy_hq(
             detail='Not enough group members')
     decrease_recruitment_process(
         db, hq.id, settings.RECRUITMENT_PROCESS_TO_NEW_HQ)
-    new_hq = create_new_headquarter(db, hq_data, current_user.id)
-    change_group_dislocation(
-        db,
-        current_user.id,
-        group.id,
-        GroupChangeHQSchema(
-            headquarter_id=new_hq.id))
-    return new_hq
+    create_new_headquarter(group.id, hq_data, current_user.id)

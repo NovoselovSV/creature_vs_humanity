@@ -10,7 +10,10 @@ from service.groups import create_group, get_group, get_group_by_name, get_group
 from service.headquarters import increase_recruitment_process
 from service.login import get_current_user
 from service.units import count_members, increase_members_expirience
-from web.shortcuts import get_error_openapi_response, get_object_or_404
+from web.shortcuts import (
+    check_group_availability,
+    get_error_openapi_response,
+    get_object_or_404)
 
 
 router = APIRouter(prefix='/groups')
@@ -40,7 +43,6 @@ def group(
 
 
 @router.post('/',
-             response_model=GroupReadSchema,
              responses=get_error_openapi_response(
                  {status.HTTP_400_BAD_REQUEST:
                   'Name is already obtained'}))
@@ -52,12 +54,13 @@ def group_creation(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='You have already obtaine this name')
-    return create_group(db, current_user.id, group_data)
+    create_group(db, current_user.id, group_data)
 
 
 @router.patch('/{group_id}/recruite',
               responses=get_error_openapi_response(
-                  {status.HTTP_404_NOT_FOUND: 'Group not found'}))
+                  {status.HTTP_404_NOT_FOUND: 'Group not found',
+                   status.HTTP_409_CONFLICT: 'Group is busy'}))
 def push_recruitment(
         group_id: int,
         current_user: Annotated[User, Depends(get_current_user)],
@@ -67,8 +70,9 @@ def push_recruitment(
         db,
         current_user.id,
         group_id)
-    return increase_recruitment_process(
-        db, group.headquarter_id, count_members(db, group.id))
+    check_group_availability(group_id)
+    increase_recruitment_process(
+        group.id, group.headquarter_id, count_members(db, group.id))
 
 
 @router.patch('/{group_id}/training',
@@ -83,4 +87,5 @@ def training(
         db,
         current_user.id,
         group_id)
-    return increase_members_expirience(db, group_id)
+    check_group_availability(group_id)
+    increase_members_expirience(db, group_id)

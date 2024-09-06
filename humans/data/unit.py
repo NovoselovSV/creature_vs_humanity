@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import Column, ForeignKey, Integer
 from sqlalchemy.orm import relationship
 
@@ -50,3 +50,9 @@ class UnitChangeGroupSchema(BaseModel):
     """OpenAPI schema of unit to change group."""
 
     group_id: int
+
+
+class UnitLevelUpSchema(BaseModel):
+    """OpenAPI schema of unit to level up."""
+
+    parametr_name: str = Field(pattern=r'^((attack)|(health))$')

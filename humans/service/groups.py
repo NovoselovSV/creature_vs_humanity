@@ -1,4 +1,3 @@
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from data.group import Group, GroupChangeHQSchema, GroupWriteSchema
