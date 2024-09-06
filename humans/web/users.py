@@ -6,6 +6,8 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 import jwt
 
+from service.shortcuts import validate_credential_data
+
 from .shortcuts import get_object_or_404
 from data.user import UserReadSchema, UserWriteSchema
 from data.general_data import ErrorMessageSchema
@@ -26,11 +28,7 @@ router = APIRouter(prefix='/users')
                          'description': 'Invalid credential data'}})
 def login(user_data: Annotated[OAuth2PasswordRequestForm,
           Depends()], db: Session = Depends(get_db)) -> Token:
-    user = get_user_username(db, user_data.username)
-    if not user or user_data.password != user.password:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Login data invalid')
+    user = validate_credential_data(db, user_data.username, user_data.password)
     return Token(
         access_token=jwt.encode(
             {'id': user.id,
