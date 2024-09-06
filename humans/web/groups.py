@@ -43,6 +43,8 @@ def group(
 
 
 @router.post('/',
+             response_model=GroupReadSchema,
+             status_code=status.HTTP_201_CREATED,
              responses=get_error_openapi_response(
                  {status.HTTP_400_BAD_REQUEST:
                   'Name is already obtained'}))
@@ -54,7 +56,7 @@ def group_creation(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='You have already obtaine this name')
-    create_group(db, current_user.id, group_data)
+    return create_group(db, current_user.id, group_data)
 
 
 @router.patch('/{group_id}/recruite',

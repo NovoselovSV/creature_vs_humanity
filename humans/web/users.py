@@ -37,26 +37,26 @@ def login(user_data: Annotated[OAuth2PasswordRequestForm,
         token_type='bearer')
 
 
-@ router.get('/{user_id}',
-             response_model=UserReadSchema,
-             responses={status.HTTP_404_NOT_FOUND:
-                        {'model': ErrorMessageSchema,
-                         'description': 'Item not found'}})
+@router.get('/{user_id}',
+            response_model=UserReadSchema,
+            responses={status.HTTP_404_NOT_FOUND:
+                       {'model': ErrorMessageSchema,
+                        'description': 'Item not found'}})
 def user(user_id: int, db: Session = Depends(get_db)):
     return get_object_or_404(get_user, db, user_id)
 
 
-@ router.get('/', response_model=list[UserReadSchema])
+@router.get('/', response_model=list[UserReadSchema])
 def users(db: Session = Depends(get_db)):
     return get_users(db)
 
 
-@ router.post('/',
-              response_model=UserReadSchema,
-              status_code=status.HTTP_201_CREATED,
-              responses={status.HTTP_400_BAD_REQUEST:
-                         {'model': ErrorMessageSchema,
-                          'description': 'Username obtained'}})
+@router.post('/',
+             response_model=UserReadSchema,
+             status_code=status.HTTP_201_CREATED,
+             responses={status.HTTP_400_BAD_REQUEST:
+                        {'model': ErrorMessageSchema,
+                         'description': 'Username obtained'}})
 def user_creation(user: UserWriteSchema, db: Session = Depends(get_db)):
     if get_user_username(db, user.username):
         raise HTTPException(

@@ -13,7 +13,7 @@ Base.metadata.create_all(engine)
 app = FastAPI(debug=True)
 
 app.add_middleware(DebugToolbarMiddleware, panels=[
-                   'debug_toolbar.panels.sqlalchemy.SQLAlchemyPanel'],)
+                   'debug_toolbar.panels.sqlalchemy.SQLAlchemyPanel'])
 
 app.include_router(users.router)
 app.include_router(regions.router)
@@ -21,7 +21,11 @@ app.include_router(headquarters.router)
 app.include_router(units.router)
 app.include_router(groups.router)
 
-admin = Admin(app, engine, authentication_backend=AdminAuth(settings.SECRET_KEY))
+admin = Admin(
+    app,
+    engine,
+    authentication_backend=AdminAuth(
+        settings.SECRET_KEY))
 
 admin.add_view(UserAdmin)
 admin.add_view(RegionAdmin)

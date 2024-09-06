@@ -1,28 +1,28 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 
 from data.group import Group, GroupChangeHQSchema, GroupWriteSchema
+from data.unit import Unit
 
 
 def get_groups(db: Session, user_id: int) -> list[Group]:
-    return db.query(Group).filter(Group.director_id == user_id)
+    return db.query(Group).options(
+        joinedload(
+            Group.members)).filter(
+        Group.director_id == user_id)
 
 
 def get_group(
         db: Session,
         user_id: int,
         group_id: int) -> Group:
-    return db.query(Group).filter(
-        Group.director_id == user_id,
-        Group.id == group_id).first()
+    return get_groups(db, user_id).filter(Group.id == group_id).first()
 
 
 def get_group_by_name(
         db: Session,
         user_id: int,
         group_name: str) -> Group | None:
-    return db.query(Group).filter(
-        Group.director_id == user_id,
-        Group.name == group_name).first()
+    return get_groups(db, user_id).filter(Group.name == group_name).first()
 
 
 def get_group_on_hq(
@@ -30,8 +30,7 @@ def get_group_on_hq(
         user_id: int,
         headquarter_id: int,
         group_id: int) -> Group | None:
-    return db.query(Group).filter(
-        Group.director_id == user_id,
+    return get_groups(db, user_id).filter(
         Group.id == group_id,
         Group.headquarter_id == headquarter_id).first()
 
@@ -52,8 +51,6 @@ def change_group_dislocation(
         user_id: int,
         group_id: int,
         new_group_data: GroupChangeHQSchema) -> None:
-    db.query(Group).filter(
-        Group.id == group_id,
-        Group.director_id == user_id).update(
+    get_groups(db, user_id).filter(Group.id == group_id).update(
         new_group_data.dict())
     db.commit()

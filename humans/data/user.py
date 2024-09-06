@@ -1,4 +1,5 @@
 from typing import List
+
 from pydantic import BaseModel
 from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import Mapped, relationship
@@ -20,11 +21,10 @@ class User(Base):
             'pbkdf2_sha512',
             'md5_crypt'
         ],
-
         deprecated=['md5_crypt']
     ))
     email = Column(EmailType)
-    is_admin = Column(Boolean)
+    is_admin = Column(Boolean, default=False)
 
     hqs: Mapped[List['data.headquarter.Headquarter']] = relationship()
     groups: Mapped[List['data.group.Group']] = relationship()
