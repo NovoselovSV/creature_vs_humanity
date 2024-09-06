@@ -6,8 +6,34 @@ from sqlalchemy.orm import Session
 
 from SQL_db.database import Base
 from data.general_data import ErrorMessageSchema
+from data.user import User
 from redis_app import redis_instance
+from service.users import get_user_username
 import settings
+
+
+def validate_credential_data(
+        db: Session,
+        username: str,
+        password: str) -> User:
+    user = get_user_username(db, username)
+    if not user or password != user.password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Login data invalid')
+    return user
+
+
+def validate_admin(
+        db: Session,
+        username: str,
+        password: str) -> User:
+    user = get_user_username(db, username)
+    if not user or password != user.password or not user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail='Login data invalid')
+    return user
 
 
 def get_object_or_404(get_object_func: Callable[[

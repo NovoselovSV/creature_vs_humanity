@@ -14,8 +14,8 @@ from data.headquarter import Headquarter
 from data.region import Region
 from data.unit import Unit
 from data.user import User
-from service.shortcuts import validate_admin
 from settings import pwd_context
+from web.shortcuts import validate_admin
 
 
 class AdminAuth(AuthenticationBackend):

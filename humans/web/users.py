@@ -6,9 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 import jwt
 
-from service.shortcuts import validate_credential_data
-
-from .shortcuts import get_object_or_404
+from .shortcuts import get_object_or_404, validate_credential_data
 from data.user import UserReadSchema, UserWriteSchema
 from data.general_data import ErrorMessageSchema
 from settings import (
