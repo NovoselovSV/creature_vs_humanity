@@ -2,6 +2,8 @@ import click
 
 from SQL_db.database import get_db
 from data.user import User
+from data.headquarter import Headquarter # noqa
+from data.group import Group # noqa
 
 
 @click.command()
