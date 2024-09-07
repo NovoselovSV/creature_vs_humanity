@@ -4,16 +4,18 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from SQL_db.database import get_db
+from data.enemy import EnemyResponseSchema, EnemySchema
 from data.group import GroupReadSchema, GroupWriteSchema
 from data.user import User
-from service.groups import create_group, get_group, get_group_by_name, get_groups
+from service.groups import create_group, get_ambushed, get_group, get_group_by_name, get_groups
 from service.headquarters import increase_recruitment_process
 from service.login import get_current_user
 from service.units import count_members, increase_members_expirience
 from web.shortcuts import (
     check_group_availability,
     get_error_openapi_response,
-    get_object_or_404)
+    get_object_or_404,
+    get_redis_group_key)
 
 
 router = APIRouter(prefix='/groups')
@@ -57,6 +59,29 @@ def group_creation(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='You have already obtaine this name')
     return create_group(db, current_user.id, group_data)
+
+
+@router.post('/{group_id}/_defense',
+             status_code=status.HTTP_201_CREATED,
+             response_model=EnemyResponseSchema,
+             responses=get_error_openapi_response(
+                 {status.HTTP_400_BAD_REQUEST:
+                  'Name is already obtained'}))
+def group_defense(
+        group_id: int,
+        creature_data: EnemySchema,
+        current_user: Annotated[User, Depends(get_current_user)],
+        db: Session = Depends(get_db)):
+    get_object_or_404(
+        get_group,
+        db,
+        current_user.id,
+        group_id)
+    if not get_redis_group_key(group_id):
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail='Group at hq')
+    return get_ambushed(group_id)
 
 
 @router.patch('/{group_id}/recruite',

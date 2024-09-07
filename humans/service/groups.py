@@ -1,14 +1,17 @@
 from sqlalchemy.orm import Query, Session, joinedload
 
+from data.enemy import EnemyResponseSchema, EnemySchema
 from data.group import Group, GroupChangeHQSchema, GroupWriteSchema
 from data.headquarter import Headquarter
+from service.enemies import fight
+from service.regions import get_random_region
 
 
 def get_groups(db: Session, user_id: int) -> Query:
     return db.query(Group).options(
         joinedload(Group.members),
         joinedload(Group.headquarter).joinedload(
-                Headquarter.region)).filter(
+            Headquarter.region)).filter(
         Group.director_id == user_id)
 
 
@@ -55,3 +58,14 @@ def change_group_dislocation(
     get_groups(db, user_id).filter(Group.id == group_id).update(
         new_group_data.dict())
     db.commit()
+
+
+def get_ambushed(
+        db: Session,
+        group_id: int,
+        enemy: EnemySchema) -> EnemyResponseSchema:
+    return fight(
+        db,
+        db.query(Group).get(group_id),
+        enemy,
+        get_random_region(db))
