@@ -2,13 +2,13 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
-from data.group import GroupBuilderSchema, GroupChangeHQSchema
-from service.groups import change_group_dislocation, get_group_on_hq
+from data.group import GroupBuilderSchema
+from service.groups import get_group_on_hq
 from service.units import count_members, create_new_unit
 import settings
 from SQL_db.database import get_db
 from data.headquarter import HeadquarterReadSchema, HeadquarterWriteSchema
-from data.unit import UnitReadSchema, UnitWriteSchema
+from data.unit import UnitWriteSchema
 from data.user import User
 from service.headquarters import (
     create_new_headquarter,
@@ -17,7 +17,10 @@ from service.headquarters import (
     get_headquarter_by_name,
     get_headquarters)
 from service.login import get_current_user
-from web.shortcuts import check_hq_availability, get_error_openapi_response, get_object_or_404
+from web.shortcuts import (
+    check_hq_availability,
+    get_error_openapi_response,
+    get_object_or_404)
 
 router = APIRouter(prefix='/headquarters')
 

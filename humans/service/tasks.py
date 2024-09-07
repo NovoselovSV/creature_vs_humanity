@@ -4,11 +4,10 @@ from typing import Any, Dict
 from sqlalchemy.orm import Session
 
 from SQL_db.database import get_db
-from data.group import Group, GroupChangeHQSchema
+from celery_app import celery_app
+from data.group import GroupChangeHQSchema
 from data.headquarter import Headquarter
 from data.unit import Unit
-from data.user import User
-from celery_app import celery_app
 from redis_app import redis_instance
 from service.groups import change_group_dislocation
 import settings

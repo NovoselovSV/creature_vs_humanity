@@ -3,9 +3,16 @@ from fastapi import FastAPI
 from debug_toolbar.middleware import DebugToolbarMiddleware
 from sqladmin import Admin
 
-from admin import AdminAuth, GroupAdmin, HeadquarterAdmin, RegionAdmin, UnitAdmin, UserAdmin
 from SQL_db.database import Base, engine
-from web import groups, headquarters, regions, units, users
+from admin import (
+    AdminAuth,
+    GroupAdmin,
+    HeadquarterAdmin,
+    RegionAdmin,
+    UnitAdmin,
+    UserAdmin)
+from web import (groups, headquarters, regions, units, users)
+import service.events # noqa
 import settings
 
 Base.metadata.create_all(engine)

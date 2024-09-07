@@ -7,15 +7,15 @@ from sqlalchemy.orm import Session
 import jwt
 
 from .shortcuts import get_object_or_404, validate_credential_data
-from data.user import UserReadSchema, UserWriteSchema
-from data.general_data import ErrorMessageSchema
-from settings import (
-    ALGORITHM,
-    SECRET_KEY,
-    ACCESS_TOKEN_EXPIRE_DAYS)
-from service.users import create_user, get_user, get_user_username, get_users
-from data.login import Token
 from SQL_db.database import get_db
+from data.general_data import ErrorMessageSchema
+from data.user import UserReadSchema, UserWriteSchema
+from settings import (
+    ACCESS_TOKEN_EXPIRE_DAYS,
+    ALGORITHM,
+    SECRET_KEY)
+from data.login import Token
+from service.users import create_user, get_user, get_user_username, get_users
 
 router = APIRouter(prefix='/users')
 

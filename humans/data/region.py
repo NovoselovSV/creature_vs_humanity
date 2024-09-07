@@ -1,4 +1,5 @@
 from typing import List
+
 from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.orm import Mapped, relationship

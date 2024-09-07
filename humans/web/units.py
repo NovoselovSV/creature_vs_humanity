@@ -5,7 +5,7 @@ from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
 
 from SQL_db.database import get_db
-from data.unit import UnitChangeGroupSchema, UnitLevelUpSchema, UnitReadSchema, UnitWriteSchema
+from data.unit import UnitChangeGroupSchema, UnitLevelUpSchema, UnitReadSchema
 from data.user import User, UserWriteSchema
 from service.groups import get_group_on_hq
 from service.login import get_current_user

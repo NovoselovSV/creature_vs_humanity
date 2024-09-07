@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
-
 from .shortcuts import get_object_or_404
 from SQL_db.database import get_db
-from data.region import RegionSchema
 from data.general_data import ErrorMessageSchema
+from data.region import RegionSchema
 from service.regions import get_region, get_regions
 
 router = APIRouter(prefix='/regions')
