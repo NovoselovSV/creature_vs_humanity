@@ -10,7 +10,7 @@ from data.user import User, UserWriteSchema
 from service.groups import get_group_on_hq
 from service.login import get_current_user
 from service.units import change_unit_group, get_unit, get_units, level_up_unit
-from web.shortcuts import get_error_openapi_response, get_object_or_404
+from web.shortcuts import check_group_availability, get_error_openapi_response, get_object_or_404
 import settings
 
 
@@ -53,12 +53,12 @@ def change_group(
         db,
         current_user.id,
         unit_id)
-    get_object_or_404(
+    check_group_availability(get_object_or_404(
         get_group_on_hq,
         db,
         current_user.id,
         unit.group.headquarter_id,
-        new_group.group_id)
+        new_group.group_id).id)
     change_unit_group(db, unit_id, current_user.id, new_group)
 
 
@@ -80,4 +80,5 @@ def level_up(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail='Not enough expirience')
+    check_group_availability(unit.group_id)
     level_up_unit(db, unit.id, current_user.id, parametr.parametr_name)

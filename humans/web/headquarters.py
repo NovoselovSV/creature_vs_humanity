@@ -18,6 +18,7 @@ from service.headquarters import (
     get_headquarters)
 from service.login import get_current_user
 from web.shortcuts import (
+    check_group_availability,
     check_hq_availability,
     get_error_openapi_response,
     get_object_or_404)
@@ -114,6 +115,7 @@ def deploy_hq(
         current_user.id,
         headquarter_id,
         group_data.group_id)
+    check_group_availability(group.id)
     if not count_members(db, group.id):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,

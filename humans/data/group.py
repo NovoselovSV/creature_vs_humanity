@@ -8,6 +8,7 @@ from SQL_db.database import Base
 import data
 from data.headquarter import HeadquarterReadSchema
 from data.unit import UnitReadShortSchema
+from web.shortcuts import get_redis_group_key
 
 
 class Group(Base):
@@ -25,6 +26,10 @@ class Group(Base):
 
     members: Mapped[List['data.unit.Unit']] = relationship()
 
+    @property
+    def on_hq(self):
+        return not get_redis_group_key(self.id)
+
     __table_args__ = (
         UniqueConstraint(
             'director_id',
@@ -41,6 +46,7 @@ class GroupReadShortSchema(BaseModel):
 
     id: int
     name: str
+    on_hq: bool
     headquarter: HeadquarterReadSchema
 
 

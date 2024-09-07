@@ -55,8 +55,14 @@ def get_error_openapi_response(
             in errors.items()}
 
 
+def get_redis_group_key(group_id: int):
+    return redis_instance.get(
+        settings.REDIS_GROUP_KEY.format(
+            group_id=group_id))
+
+
 def check_group_availability(group_id: int):
-    if redis_instance.get(settings.REDIS_GROUP_KEY.format(group_id=group_id)):
+    if get_redis_group_key(group_id):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail='Group busy')
