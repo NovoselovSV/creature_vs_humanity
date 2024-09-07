@@ -2,8 +2,8 @@ from typing import Annotated
 
 import jwt
 from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
 from jwt.exceptions import InvalidTokenError
+from sqlalchemy.orm import Session
 
 from SQL_db.database import get_db
 from service.users import get_user

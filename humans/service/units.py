@@ -1,14 +1,13 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Query, Session
 
 from data.unit import Unit, UnitChangeGroupSchema
 from data.user import UserWriteSchema
 from service.shortcuts import create_group_task, create_hq_task
 from service.tasks import create_unit_celery, get_expirience_celery
-from redis_app import redis_instance
 import settings
 
 
-def get_units(db: Session, user_id: int) -> list[Unit]:
+def get_units(db: Session, user_id: int) -> Query:
     return db.query(Unit).filter(Unit.director_id == user_id)
 
 
@@ -16,8 +15,7 @@ def get_unit(
         db: Session,
         user_id: int,
         unit_id: int) -> Unit | None:
-    return db.query(Unit).filter(
-        Unit.director_id == user_id,
+    return get_units(db, user_id).filter(
         Unit.id == unit_id).first()
 
 
@@ -41,9 +39,8 @@ def change_unit_group(
         unit_id: int,
         director_id: int,
         new_group_data: UnitChangeGroupSchema) -> None:
-    db.query(Unit).filter(
-        Unit.id == unit_id,
-        Unit.director_id == director_id).update(
+    get_units(db, director_id).filter(
+        Unit.id == unit_id).update(
         new_group_data.dict())
     db.commit()
 
@@ -52,9 +49,8 @@ def decrease_unit_expirience(
         db: Session,
         unit_id: int,
         director_id: int) -> None:
-    db.query(Unit).filter(
-        Unit.id == unit_id,
-        Unit.director_id == director_id).update(
+    get_units(db, director_id).filter(
+        Unit.id == unit_id).update(
         {'expirience': Unit.expirience - settings.EXPIRIENCE_TO_LEVEL_UP})
     db.commit()
 
@@ -65,9 +61,8 @@ def level_up_unit(
         director_id: int,
         parametr_name: str) -> None:
     decrease_unit_expirience(db, unit_id, director_id)
-    db.query(Unit).filter(
-        Unit.id == unit_id,
-        Unit.director_id == director_id).update(
+    get_units(db, director_id).filter(
+        Unit.id == unit_id).update(
         {parametr_name: getattr(Unit, parametr_name) +
             settings.LEVEL_UP_TABLE[parametr_name]})
     db.commit()

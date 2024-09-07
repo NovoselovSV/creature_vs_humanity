@@ -1,8 +1,7 @@
 from typing import Any
 
-from redis_app import redis_instance
-
 import settings
+from redis_app import redis_instance
 
 
 def create_group_task(group_id: int, task: Any, *args: Any) -> None:

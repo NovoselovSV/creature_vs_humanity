@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Query, Session, joinedload
 
 from data.headquarter import Headquarter, HeadquarterWriteSchema
 from service.shortcuts import create_group_task
@@ -6,16 +6,18 @@ from service.tasks import create_hq_celery, increase_recruitment_celery
 import settings
 
 
-def get_headquarters(db: Session, user_id: int) -> list[Headquarter]:
-    return db.query(Headquarter).filter(Headquarter.director_id == user_id)
+def get_headquarters(db: Session, user_id: int) -> Query:
+    return db.query(Headquarter).options(
+        joinedload(
+            Headquarter.region)).filter(
+        Headquarter.director_id == user_id)
 
 
 def get_headquarter(
         db: Session,
         user_id: int,
         headquarter_id: int) -> Headquarter | None:
-    return db.query(Headquarter).filter(
-        Headquarter.director_id == user_id,
+    return get_headquarters(db, user_id).filter(
         Headquarter.id == headquarter_id).first()
 
 
@@ -23,8 +25,7 @@ def get_headquarter_by_name(
         db: Session,
         user_id: int,
         headquarter_name: str) -> Headquarter | None:
-    return db.query(Headquarter).filter(
-        Headquarter.director_id == user_id,
+    return get_headquarters(db, user_id).filter(
         Headquarter.name == headquarter_name).first()
 
 

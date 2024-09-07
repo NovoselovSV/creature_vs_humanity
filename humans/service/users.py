@@ -1,5 +1,4 @@
 from sqlalchemy.orm import Session
-from sqlalchemy_utils import Password
 
 from data.user import User, UserWriteSchema
 

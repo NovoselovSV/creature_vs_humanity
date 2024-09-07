@@ -1,13 +1,14 @@
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.orm import Query, Session, joinedload
 
 from data.group import Group, GroupChangeHQSchema, GroupWriteSchema
-from data.unit import Unit
+from data.headquarter import Headquarter
 
 
-def get_groups(db: Session, user_id: int) -> list[Group]:
+def get_groups(db: Session, user_id: int) -> Query:
     return db.query(Group).options(
-        joinedload(
-            Group.members)).filter(
+        joinedload(Group.members),
+        joinedload(Group.headquarter).joinedload(
+                Headquarter.region)).filter(
         Group.director_id == user_id)
 
 

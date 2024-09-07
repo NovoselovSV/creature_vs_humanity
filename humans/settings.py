@@ -23,7 +23,7 @@ EXPIRIENCE_TO_LEVEL_UP = 100
 LEVEL_UP_TABLE = {'health': 10,
                   'attack': 10}
 REDIS_GROUP_KEY = 'group_{group_id}_on_mission'
-REDIS_GROUP_MISSION_SECOND = 3
+REDIS_GROUP_MISSION_SECOND = 30
 MULT_TASK_TIME = 3
 REDIS_HQ_KEY = 'hq_{hq_id}_working'
 REDIS_HQ_WORKING_SECOND = 60
