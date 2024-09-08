@@ -1,3 +1,5 @@
+from random import choise
+
 from django.conf import settings
 from django.core.cache import cache
 from rest_framework import permissions, status, viewsets
@@ -7,7 +9,10 @@ from rest_framework.mixins import Response
 
 from . import serializers, tasks
 from .models import Beast
+from area.models import Area
 from core.exceptions import BusyException, NotEnoughException
+from core.fight import fight
+from core.serializers import HumanGroupSerializer
 from nest.serializers import NestWriteSerializer
 
 
@@ -71,6 +76,23 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
         beast.level_up(ability_name)
         return Response(status=status.HTTP_200_OK)
 
+    @action(url_path='_defense', methods=('post',), detail=True)
+    def defense(self, request, pk):
+        beast = self.get_beast(request, pk)
+        group_serializer = HumanGroupSerializer(data=request.data)
+        group_serializer.is_valid(raise_exception=True)
+        if beast.in_nest:
+            raise BusyException('Beast in nest')
+        response_serializer = fight(
+            beast,
+            group_serializer.data['members'],
+            choise(tuple(Area.objects.all())))
+        response_serializer.signature = None
+        response_serializer.is_valid(raise_exception=True)
+        return Response(
+            data=response_serializer.data,
+            status=status.HTTP_200_OK)
+
     def add_task_for_beast(self, beast, task, *args):
         key = settings.BEAST_ACTION_KEY.format(beast=beast)
         cache.set(
@@ -80,9 +102,12 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
                 countdown=settings.BEAST_ACTING_TIME),
             settings.BEAST_ACTING_TIME * settings.BUFFER_MULTIPLY)
 
-    def get_free_beast(self, request, pk):
-        beast = get_object_or_404(
+    def get_beast(self, request, pk):
+        return get_object_or_404(
             Beast.objects.all(), pk=pk, owner=request.user)
+
+    def get_free_beast(self, request, pk):
+        beast = self.get_beast(request, pk)
         if not beast.in_nest:
             raise BusyException('Beast is busy')
         return beast

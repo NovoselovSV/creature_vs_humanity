@@ -67,6 +67,10 @@ class Beast(models.Model):
         self.experience -= amount
         self.save()
 
+    def decrease_health(self, amount):
+        self.health -= amount
+        self.save()
+
     def level_up(self, ability_name):
         self.decrease_experience(settings.NEW_LEVEL_EXPERIENTS)
         setattr(

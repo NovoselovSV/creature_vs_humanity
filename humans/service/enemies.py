@@ -39,7 +39,7 @@ def attacker_attack(creature, region, units, attacked_unit_number):
                     region.attacker_attack_impact -
                     region.defender_defense_impact)
     if not unit.health > 0:
-        units.pop[attacked_unit_number]
+        units.pop(attacked_unit_number)
 
 
 def defender_attack(unit, region, creature):
