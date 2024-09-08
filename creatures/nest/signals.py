@@ -13,6 +13,8 @@ User = get_user_model()
 def add_first_nest(sender, instance, created, **kwargs):
     if not created:
         return
+    if not Area.objects.count():
+        Area(name='Поляна', description='Поляна посреди леса').save()
     Nest(
         owner=instance,
         name='Nest of creatures',
