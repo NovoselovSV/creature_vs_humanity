@@ -1,4 +1,4 @@
-from random import choise
+from random import choice
 
 from django.conf import settings
 from django.core.cache import cache
@@ -12,7 +12,7 @@ from .models import Beast
 from area.models import Area
 from core.exceptions import BusyException, NotEnoughException
 from core.fight import fight
-from core.serializers import HumanGroupSerializer
+from core.serializers import HumansGroupSerializer
 from nest.serializers import NestWriteSerializer
 
 
