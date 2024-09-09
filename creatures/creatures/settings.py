@@ -150,3 +150,8 @@ LVL_UP_ABILITY_NAME_VALUE = {
     'defense': 1,
     'health': 100
 }
+ATTACK_PORT = 8001
+ATTACK_URL = f'http://127.0.0.1:{ATTACK_PORT}/'
+GROUP_ATTACK_ENDPOINT = 'groups/{group_id}/_defense/'
+HQ_ATTACK_ENDPOINT = 'hq/{hq_id}/_defense/'
+BEAST_SALT = 'I\'m the beast'

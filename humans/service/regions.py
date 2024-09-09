@@ -1,4 +1,4 @@
-from random import sample
+from random import choice
 
 from sqlalchemy.orm import Session
 
@@ -14,4 +14,4 @@ def get_region(db: Session, region_id: int) -> Region:
 
 
 def get_random_region(db: Session) -> Region:
-    return sample(get_regions(db))
+    return choice(get_regions(db))

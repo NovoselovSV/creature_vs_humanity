@@ -7,12 +7,14 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import Response
 
+from beast.attack import request_group_attack
+
 from . import serializers, tasks
 from .models import Beast
 from area.models import Area
 from core.exceptions import BusyException, NotEnoughException
 from core.fight import fight
-from core.serializers import HumansGroupSerializer
+from core.serializers import GroupAttackSerializer, HumansGroupSerializer
 from nest.serializers import NestWriteSerializer
 
 
@@ -42,7 +44,13 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(methods=('post',), detail=True)
     def attack(self, request, pk):
-        raise NotImplementedError
+        beast = self.get_free_beast(request, pk)
+        attacked_group = GroupAttackSerializer(data=request.data)
+        attacked_group.is_valid(raise_exception=True)
+        return Response(
+            data=request_group_attack(
+                beast, attacked_group.data.get(
+                    'id', 0)), status=status.HTTP_201_CREATED)
 
     @action(methods=('post',), detail=True)
     def create_new_nest(self, request, pk):
@@ -79,14 +87,14 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
     @action(url_path='_defense', methods=('post',), detail=True)
     def defense(self, request, pk):
         beast = self.get_beast(request, pk)
-        group_serializer = HumanGroupSerializer(data=request.data)
+        group_serializer = HumansGroupSerializer(data=request.data)
         group_serializer.is_valid(raise_exception=True)
         if beast.in_nest:
             raise BusyException('Beast in nest')
         response_serializer = fight(
             beast,
             group_serializer.data['members'],
-            choise(tuple(Area.objects.all())))
+            choice(tuple(Area.objects.all())))
         response_serializer.signature = None
         response_serializer.is_valid(raise_exception=True)
         return Response(

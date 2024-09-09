@@ -65,7 +65,7 @@ def change_group(
 @router.patch('/{unit_id}/level_up',
               responses=get_error_openapi_response(
                   {status.HTTP_404_NOT_FOUND: 'Unit not found',
-                   status.HTTP_409_CONFLICT: 'Not enough expirience'}))
+                   status.HTTP_409_CONFLICT: 'Not enough experience'}))
 def level_up(
         unit_id: int,
         parametr: UnitLevelUpSchema,
@@ -76,9 +76,9 @@ def level_up(
         db,
         current_user.id,
         unit_id)
-    if unit.expirience < settings.EXPIRIENCE_TO_LEVEL_UP:
+    if unit.experience < settings.EXPERIENCE_TO_LEVEL_UP:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
-            detail='Not enough expirience')
+            detail='Not enough experience')
     check_group_availability(unit.group_id)
     level_up_unit(db, unit.id, current_user.id, parametr.parametr_name)

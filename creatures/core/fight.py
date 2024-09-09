@@ -1,5 +1,6 @@
 from random import randint, shuffle
 
+from beast.models import Beast
 from core.serializers import (
     GroupResponseSerializer,
     HumanResponseSerializer,
@@ -7,29 +8,27 @@ from core.serializers import (
 
 
 def fight(beast, group, area):
-    group_members = group.copy()
-    possible_expirients_to_group = beast.health / len(group_members)
-    queue = list(*group_members, beast)
+    group_members = group.members.copy()
+    possible_experients_to_group = beast.health / len(group_members)
+    possible_experients_to_beast = sum(
+        (unit.health for unit in group.members))
+    queue = [*group_members, beast]
     shuffle(queue)
     while beast.health > 0 and len(queue) > 1:
         pawn = queue.pop()
-        if isinstance(pawn, HumanSerializer):
-            attacker_attack(pawn, area, beast)
+        if isinstance(pawn, Beast):
+            defender_attack(pawn, area, queue, randint(0, len(queue) - 1))
         else:
-            defender_attack(pawn, area, queue, randint(0, len(queue)))
+            attacker_attack(pawn, area, beast)
         if pawn.health > 0:
-            queue.insert(pawn, 0)
-    beast.save()
-    beast.increase_experience(sum(human.health for human in group_members))
-
-    return GroupResponseSerializer(
-        members=[
-            HumanResponseSerializer(
-                id=human.id,
-                health=human.health,
-                experience=possible_expirients_to_group)
-            for human
-            in group_members])
+            queue.insert(0, pawn)
+    if beast.health > 0:
+        beast.increase_experience(possible_experients_to_beast)
+        beast.set_health(beast.health)
+    else:
+        beast.delete()
+    return list(map(lambda unit: setattr(
+        unit, 'experience', possible_experients_to_group), group))
 
 
 def attacker_attack(human, area, beast):

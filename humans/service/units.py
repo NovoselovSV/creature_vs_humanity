@@ -3,7 +3,7 @@ from sqlalchemy.orm import Query, Session
 from data.unit import Unit, UnitChangeGroupSchema
 from data.user import UserWriteSchema
 from service.shortcuts import create_group_task, create_hq_task
-from service.tasks import create_unit_celery, get_expirience_celery
+from service.tasks import create_unit_celery, get_experience_celery
 import settings
 
 
@@ -23,8 +23,8 @@ def count_members(db: Session, group_id: int) -> int:
     return db.query(Unit).filter(Unit.group_id == group_id).count()
 
 
-def increase_members_expirience(db: Session, group_id: int) -> None:
-    create_group_task(group_id, get_expirience_celery, group_id)
+def increase_members_experience(db: Session, group_id: int) -> None:
+    create_group_task(group_id, get_experience_celery, group_id)
 
 
 def create_new_unit(
@@ -45,13 +45,13 @@ def change_unit_group(
     db.commit()
 
 
-def decrease_unit_expirience(
+def decrease_unit_experience(
         db: Session,
         unit_id: int,
         director_id: int) -> None:
     get_units(db, director_id).filter(
         Unit.id == unit_id).update(
-        {'expirience': Unit.expirience - settings.EXPIRIENCE_TO_LEVEL_UP})
+        {'experience': Unit.experience - settings.EXPERIENCE_TO_LEVEL_UP})
     db.commit()
 
 
@@ -60,7 +60,7 @@ def level_up_unit(
         unit_id: int,
         director_id: int,
         parametr_name: str) -> None:
-    decrease_unit_expirience(db, unit_id, director_id)
+    decrease_unit_experience(db, unit_id, director_id)
     get_units(db, director_id).filter(
         Unit.id == unit_id).update(
         {parametr_name: getattr(Unit, parametr_name) +

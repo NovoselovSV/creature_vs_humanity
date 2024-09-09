@@ -7,6 +7,11 @@ from service.enemies import fight
 from service.regions import get_random_region
 
 
+def get_bare_group(db: Session, group_id: int) -> Query:
+    return db.query(Group).filter(
+        Group.id == group_id)
+
+
 def get_groups(db: Session, user_id: int) -> Query:
     return db.query(Group).options(
         joinedload(Group.members),

@@ -13,7 +13,7 @@ class Unit(Base):
 
     id = Column(Integer, primary_key=True)
     director_id = Column(ForeignKey('users.id'))
-    expirience = Column(Integer, default=0)
+    experience = Column(Integer, default=0)
     health = Column(Integer, default=settings.START_UNIT_HEALTH)
     attack = Column(Integer, default=settings.START_UNIT_ATTACK)
     group_id = Column(ForeignKey('groups.id', ondelete='RESTRICT'))
@@ -29,7 +29,7 @@ class UnitReadShortSchema(BaseModel):
     """OpenAPI short schema of unit to read."""
 
     id: int
-    expirience: int
+    experience: int
     health: int
     attack: int
 

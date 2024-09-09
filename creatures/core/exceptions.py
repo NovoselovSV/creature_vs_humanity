@@ -12,3 +12,9 @@ class BusyException(APIException):
     status_code = status.HTTP_400_BAD_REQUEST
     default_detail = 'Already busy'
     default_code = 'errors'
+
+
+class ConnectionException(APIException):
+    status_code = status.HTTP_400_BAD_REQUEST
+    default_detail = 'Exception in connection with humans'
+    default_code = 'errors'

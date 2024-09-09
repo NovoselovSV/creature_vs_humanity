@@ -1,4 +1,5 @@
 from random import randint, shuffle
+import hashlib
 
 from sqlalchemy.orm import Session
 from sqlalchemy_utils.query_chain import copy
@@ -7,30 +8,41 @@ from data.enemy import EnemyResponseSchema, EnemySchema
 from data.group import Group
 from data.region import Region
 from data.unit import Unit
+import settings
 
 
 def fight(db: Session, group: Group, enemy: EnemySchema, region: Region):
     group_members = group.members.copy()
-    possible_expirients_to_member = enemy.health / len(group_members)
-    queue = list(*group_members, enemy)
+    possible_experients_to_member = enemy.health / len(group_members)
+    possible_experients_to_enemy = sum(
+        (unit.health for unit in group.members))
+    queue = [*group_members, enemy]
     shuffle(queue)
     while enemy.health > 0 and len(queue) > 1:
         pawn = queue.pop()
         if isinstance(pawn, EnemySchema):
-            attacker_attack(pawn, region, queue, randint(0, len(queue)))
+            attacker_attack(pawn, region, queue, randint(0, len(queue) - 1))
         else:
             defender_attack(pawn, region, enemy)
         if pawn.health > 0:
-            queue.insert(pawn, 0)
-    map(lambda unit: db.query(Unit).filter(Unit.id == unit.id).update(
-        {'health': unit.health,
-            'expirience': Unit.expirience +
-            possible_expirients_to_member}), group_members)
-
-    db.commit()
+            queue.insert(0, pawn)
+    apply_group_results(db, group_members, possible_experients_to_member)
     return EnemyResponseSchema(
-        health=enemy.health, expirience=sum(
-            (unit.health for unit in group_members)))
+        health=enemy.health, experience=possible_experients_to_enemy)
+
+
+def apply_group_results(db, units, experience):
+    query = db.query(Unit)
+    for unit in units:
+        query_unit = query.filter(Unit.id == unit.id)
+        if unit.health > 0:
+            query_unit.update(
+                {'health': unit.health,
+                 'experience': Unit.experience +
+                 experience})
+        else:
+            query_unit.delete()
+    db.commit()
 
 
 def attacker_attack(creature, region, units, attacked_unit_number):

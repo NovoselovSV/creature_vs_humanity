@@ -6,7 +6,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 import jwt
 
-from .shortcuts import get_object_or_404, validate_credential_data
+from .shortcuts import get_error_openapi_response, get_object_or_404, validate_credential_data
 from SQL_db.database import get_db
 from data.general_data import ErrorMessageSchema
 from data.user import UserReadSchema, UserWriteSchema
@@ -54,9 +54,12 @@ def users(db: Session = Depends(get_db)):
 @router.post('/',
              response_model=UserReadSchema,
              status_code=status.HTTP_201_CREATED,
-             responses={status.HTTP_400_BAD_REQUEST:
-                        {'model': ErrorMessageSchema,
-                         'description': 'Username obtained'}})
+             responses=get_error_openapi_response({
+                 status.HTTP_400_BAD_REQUEST:
+                 'Username obtained',
+                 status.HTTP_500_INTERNAL_SERVER_ERROR:
+                 'Possible conflict BLOB password and '
+                 'fastapi debug toolbar serializer'}))
 def user_creation(user: UserWriteSchema, db: Session = Depends(get_db)):
     if get_user_username(db, user.username):
         raise HTTPException(

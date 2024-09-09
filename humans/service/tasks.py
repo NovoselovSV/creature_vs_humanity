@@ -32,9 +32,9 @@ def add_db_session(func):
 @celery_app.task
 @deleting_key
 @add_db_session
-def get_expirience_celery(db: Session, group_id: int):
+def get_experience_celery(db: Session, group_id: int):
     db.query(Unit).filter(Unit.group_id == group_id).update(
-        {'expirience': Unit.expirience + settings.EARN_EXPIRIENCE})
+        {'experience': Unit.experience + settings.EARN_EXPERIENCE})
     db.commit()
 
 

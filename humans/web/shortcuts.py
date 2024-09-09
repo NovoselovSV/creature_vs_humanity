@@ -1,10 +1,12 @@
 from collections.abc import Callable
 from typing import Any, Dict, Type
+import hashlib
 
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from SQL_db.database import Base
+from data.enemy import EnemySchema
 from data.general_data import ErrorMessageSchema
 from data.user import User
 from redis_app import redis_instance
