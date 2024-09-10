@@ -3,6 +3,8 @@ import hashlib
 from django.conf import settings
 from rest_framework import serializers
 
+from core.shortcuts import get_bytes_from_stringed
+
 from .models import Beast
 from creatures.celery import app
 from nest.serializers import NestReadSerializer
@@ -84,15 +86,13 @@ class BeastAttackSerializer(serializers.ModelSerializer):
 
     def get_signature(self, beast):
         hashed_beast_parametrs = hashlib.sha256()
-        hashed_beast_parametrs.update(bytes(str(beast.name), encoding='utf-8'))
+        hashed_beast_parametrs.update(get_bytes_from_stringed(beast.name))
+        hashed_beast_parametrs.update(get_bytes_from_stringed(beast.health))
+        hashed_beast_parametrs.update(get_bytes_from_stringed(beast.attack))
+        hashed_beast_parametrs.update(get_bytes_from_stringed(beast.defense))
         hashed_beast_parametrs.update(
-            bytes(str(beast.health), encoding='utf-8'))
-        hashed_beast_parametrs.update(
-            bytes(str(beast.attack), encoding='utf-8'))
-        hashed_beast_parametrs.update(
-            bytes(str(beast.defense), encoding='utf-8'))
-        hashed_beast_parametrs.update(
-            bytes(str(settings.BEAST_SALT), encoding='utf-8'))
+            get_bytes_from_stringed(
+                settings.BEAST_SALT))
         return hashed_beast_parametrs.hexdigest()
 
 
@@ -103,14 +103,15 @@ class AttackResponseSerializer(serializers.Serializer):
     health = serializers.IntegerField()
     experience = serializers.IntegerField()
 
-    def validate(self, data):
+    def validate(self, beast_response_data):
         hashed_beast_parametrs = hashlib.sha256()
         hashed_beast_parametrs.update(
-            bytes(str(data.get('health', 0)), encoding='utf-8'))
+            get_bytes_from_stringed(beast_response_data.get('health', 0)))
         hashed_beast_parametrs.update(
-            bytes(str(data.get('experience', 0)), encoding='utf-8'))
+            get_bytes_from_stringed(beast_response_data.get('experience', 0)))
         hashed_beast_parametrs.update(
-            bytes(str(settings.BEAST_SALT), encoding='utf-8'))
-        if data.get('signature', None) != hashed_beast_parametrs.hexdigest():
+            get_bytes_from_stringed(settings.BEAST_SALT))
+        if beast_response_data.get('signature',
+                                   None) != hashed_beast_parametrs.hexdigest():
             serializers.ValidationError('Signature error')
-        return data
+        return beast_response_data

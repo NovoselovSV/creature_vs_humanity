@@ -1,13 +1,16 @@
+import hashlib
 from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, validator, Field
 from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, relationship
 
 from SQL_db.database import Base
 import data
+import settings
 from data.headquarter import HeadquarterReadSchema
-from data.unit import UnitReadShortSchema
+from data.shortcuts import get_bytes_from_stringed
+from data.unit import UnitAttackResponseSchema, UnitAttackSchema, UnitReadShortSchema
 from web.shortcuts import get_redis_group_key
 
 
@@ -73,3 +76,54 @@ class GroupChangeHQSchema(BaseModel):
     """OpenAPI schema of group to change HQ."""
 
     headquarter_id: int
+
+
+class GroupAttackSchema(BaseModel):
+    """OpenAPI schema of group to attack enemy."""
+
+    members: List[UnitAttackSchema]
+    signature: str = ''
+
+    @validator('signature', always=True)
+    def get_signature(cls, value, values):  # noqa
+        hashed_attack = hashlib.sha256()
+        for member in values.get('members', []):
+            hashed_attack.update(
+                get_bytes_from_stringed(member.id))
+            hashed_attack.update(
+                get_bytes_from_stringed(member.health))
+            hashed_attack.update(
+                get_bytes_from_stringed(member.attack))
+        hashed_attack.update(get_bytes_from_stringed(settings.HUMANS_SALT))
+        return hashed_attack.hexdigest()
+
+    class Config:
+        from_attributes = True
+
+
+class GroupAttackResponseSchema(BaseModel):
+    """OpenAPI schema of group to response about attack enemy."""
+
+    members: List[UnitAttackResponseSchema]
+    signature: str = Field(exclude=True)
+
+    @validator('signature')
+    def validate_signature(cls, value, values):  # noqa
+        hashed_response = hashlib.sha256()
+        for member in values.get('members', []):
+            hashed_response.update(
+                get_bytes_from_stringed(member.id))
+            hashed_response.update(
+                get_bytes_from_stringed(member.health))
+            hashed_response.update(
+                get_bytes_from_stringed(member.experience))
+        hashed_response.update(get_bytes_from_stringed(settings.HUMANS_SALT))
+        if value != hashed_response.hexdigest():
+            raise ValueError('Signature not valid')
+        return value
+
+
+class GroupTargetSchema(BaseModel):
+    """OpenAPI schema of groups target."""
+
+    target_id: int

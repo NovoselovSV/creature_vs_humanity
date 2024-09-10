@@ -13,7 +13,7 @@ import settings
 
 def fight(db: Session, group: Group, enemy: EnemySchema, region: Region):
     group_members = group.members.copy()
-    possible_experients_to_member = enemy.health / len(group_members)
+    possible_experients_to_member = int(enemy.health / len(group_members))
     possible_experients_to_enemy = sum(
         (unit.health for unit in group.members))
     queue = [*group_members, enemy]

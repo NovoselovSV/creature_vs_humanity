@@ -84,7 +84,8 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
         beast.level_up(ability_name)
         return Response(status=status.HTTP_200_OK)
 
-    @action(url_path='_defense', methods=('post',), detail=True)
+    @action(url_path='_defense', permission_classes=(permissions.AllowAny,),
+            methods=('post',), detail=True)
     def defense(self, request, pk):
         beast = self.get_beast(request, pk)
         group_serializer = HumansGroupSerializer(data=request.data)
@@ -95,11 +96,9 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
             beast,
             group_serializer.data['members'],
             choice(tuple(Area.objects.all())))
-        response_serializer.signature = None
-        response_serializer.is_valid(raise_exception=True)
         return Response(
             data=response_serializer.data,
-            status=status.HTTP_200_OK)
+            status=status.HTTP_201_CREATED)
 
     def add_task_for_beast(self, beast, task, *args):
         key = settings.BEAST_ACTION_KEY.format(beast=beast)
@@ -112,7 +111,7 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_beast(self, request, pk):
         return get_object_or_404(
-            Beast.objects.all(), pk=pk, owner=request.user)
+            Beast.objects.all(), pk=pk)
 
     def get_free_beast(self, request, pk):
         beast = self.get_beast(request, pk)

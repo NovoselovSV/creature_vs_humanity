@@ -31,3 +31,7 @@ REDIS_HQ_KEY = 'hq_{hq_id}_working'
 REDIS_HQ_WORKING_SECOND = 60
 AMOUNT_UNIT_TO_START = 3
 ENEMY_SALT = 'I\'m the beast'
+HUMANS_SALT = 'I\'m only human'
+ATTACK_PORT = 8000
+ATTACK_URL = f'http://127.0.0.1:{ATTACK_PORT}/'
+GROUP_ATTACK_ENDPOINT = 'beasts/{beast_id}/_defense/'

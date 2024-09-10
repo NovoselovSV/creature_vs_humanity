@@ -7,11 +7,11 @@ from core.serializers import (
     HumanSerializer)
 
 
-def fight(beast, group, area):
-    group_members = group.members.copy()
-    possible_experients_to_group = beast.health / len(group_members)
+def fight(beast, units, area):
+    group_members = units.copy()
+    possible_experients_to_group = int(beast.health / len(group_members))
     possible_experients_to_beast = sum(
-        (unit.health for unit in group.members))
+        (unit.health for unit in units))
     queue = [*group_members, beast]
     shuffle(queue)
     while beast.health > 0 and len(queue) > 1:
@@ -27,8 +27,11 @@ def fight(beast, group, area):
         beast.set_health(beast.health)
     else:
         beast.delete()
-    return list(map(lambda unit: setattr(
-        unit, 'experience', possible_experients_to_group), group))
+    for unit in units:
+        unit.experience = possible_experients_to_group
+    response_serializer = GroupResponseSerializer(data={'members': units})
+    response_serializer.is_valid(raise_exception=True)
+    return response_serializer
 
 
 def attacker_attack(human, area, beast):

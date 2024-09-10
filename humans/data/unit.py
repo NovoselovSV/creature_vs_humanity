@@ -56,3 +56,22 @@ class UnitLevelUpSchema(BaseModel):
     """OpenAPI schema of unit to level up."""
 
     parametr_name: str = Field(pattern=r'^((attack)|(health))$')
+
+
+class UnitAttackSchema(BaseModel):
+    """OpenAPI schema of unit to attack enemy."""
+
+    id: int
+    attack: int
+    health: int
+
+    class Config:
+        from_attributes = True
+
+
+class UnitAttackResponseSchema(BaseModel):
+    """OpenAPI schema of unit to response about attack enemy."""
+
+    id: int
+    health: int
+    experience: int

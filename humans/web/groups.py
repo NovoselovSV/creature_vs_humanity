@@ -5,11 +5,12 @@ from sqlalchemy.orm import Session
 
 from SQL_db.database import get_db
 from data.enemy import EnemyResponseSchema, EnemySchema
-from data.group import GroupReadSchema, GroupWriteSchema
+from data.group import GroupAttackResponseSchema, GroupReadSchema, GroupTargetSchema, GroupWriteSchema
 from data.user import User
 from service.groups import create_group, get_ambushed, get_bare_group, get_group, get_group_by_name, get_groups
 from service.headquarters import increase_recruitment_process
 from service.login import get_current_user
+from service.requests import request_beast_attack
 from service.units import count_members, increase_members_experience
 from web.shortcuts import (
     check_group_availability,
@@ -84,6 +85,25 @@ def group_defense(
             status_code=status.HTTP_406_NOT_ACCEPTABLE,
             detail='Group at hq')
     return get_ambushed(db, group_id, creature_data)
+
+
+@router.post('/{group_id}/attack',
+             status_code=status.HTTP_201_CREATED,
+             response_model=GroupAttackResponseSchema,
+             responses=get_error_openapi_response(
+                 {status.HTTP_404_NOT_FOUND: 'Group not found'}))
+def attack(
+        group_id: int,
+        target: GroupTargetSchema,
+        current_user: Annotated[User, Depends(get_current_user)],
+        db: Session = Depends(get_db)):
+    group = get_object_or_404(
+        get_group,
+        db,
+        current_user.id,
+        group_id)
+    check_group_availability(group_id)
+    return request_beast_attack(db, group, target.target_id)
 
 
 @router.patch('/{group_id}/recruite',
