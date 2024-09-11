@@ -7,76 +7,75 @@
 git clone https://github.com/NovoselovSV/creature_vs_humanity.git
 ```
  2. Создать, активировать виртуальное окружение и установить зависимости для:
-
-   1. части creatures
-```bash
-cd path/to/repo/creatures
-```
-```bash
-python3 -m venv venv
-```
-```bash
-source env/bin/activate
-```
-```bash
-python3 -m pip install --upgrade pip
-```
-```bash
-pip install -r requirements.txt
-```
-
-   2. части humans
-```bash
-cd path/to/repo/humans
-```
-```bash
-python3 -m venv venv
-```
-```bash
-source env/bin/activate
-```
-```bash
-python3 -m pip install --upgrade pip
-```
-```bash
-pip install -r requirements.txt
-```
+     1. части creatures
+         ```bash
+         cd path/to/repo/creatures
+         ```
+         ```bash
+         python3 -m venv venv
+         ```
+         ```bash
+         source env/bin/activate
+         ```
+         ```bash
+         python3 -m pip install --upgrade pip
+         ```
+         ```bash
+         pip install -r requirements.txt
+         ```
+         
+     2. части humans
+         ```bash
+         cd path/to/repo/humans
+         ```
+         ```bash
+         python3 -m venv venv
+         ```
+         ```bash
+         source env/bin/activate
+         ```
+         ```bash
+         python3 -m pip install --upgrade pip
+         ```
+         ```bash
+         pip install -r requirements.txt
+         ```
 
  3. Запуск проекта (каждое действие производить в отдельной сессии оболочки):
 
-   1. часть creatures
+     1. часть creatures
 
-     1. Запуск redis-server(если не запущен)
-```bash
-redis-server
-```
+         1. Запуск redis-server(если не запущен)
+             ```bash
+             redis-server
+             ```
 
-     2. Запуск приложения
-```bash
-python manage.py runserver
-```
+         2. Запуск приложения
+             ```bash
+             python manage.py runserver
+             ```
 
-     3. Запуск celery worker
-```bash
-celery -A creatures worker [-l info]
-```
+         3. Запуск celery worker
+             ```bash
+             celery -A creatures worker [-l info]
+             ```
 
-   2. часть humans
+     2. часть humans
 
-     1. Запуск redis-server(если не запущен)
-```bash
-redis-server
-```
-
-     2. Запуск приложения
-```bash
-uvicorn main:app [--reload] --port 8001
-```
-
-     3. Запуск celery worker
-```bash
-celery -A celery_app.celery_app worker [-l info]
-```
+         1. Запуск redis-server(если не запущен)
+             ```bash
+             redis-server
+             ```
+             
+         2. Запуск приложения
+             ```bash
+             uvicorn main:app [--reload] --port 8001
+             ```
+             
+         3. Запуск celery worker
+             ```bash
+             celery -A celery_app.celery_app worker [-l info]
+             ```
 
 ## Использованные технологии
 
