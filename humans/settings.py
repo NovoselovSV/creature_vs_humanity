@@ -35,3 +35,4 @@ HUMANS_SALT = 'I\'m only human'
 ATTACK_PORT = 8000
 ATTACK_URL = f'http://127.0.0.1:{ATTACK_PORT}/'
 GROUP_ATTACK_ENDPOINT = 'beasts/{beast_id}/_defense/'
+CELERY_TASK_EXPIRE_SEC = 600
