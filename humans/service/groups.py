@@ -1,4 +1,6 @@
-from sqlalchemy.orm import Query, Session, joinedload
+from sqlalchemy import select, update
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Query, joinedload
 
 from data.enemy import EnemyResponseSchema, EnemySchema
 from data.group import Group, GroupChangeHQSchema, GroupWriteSchema
@@ -7,70 +9,90 @@ from service.enemies import fight
 from service.regions import get_random_region
 
 
-def get_bare_group(db: Session, group_id: int) -> Query:
+def get_bare_group(db: AsyncSession, group_id: int) -> Query:
     return db.query(Group).filter(
         Group.id == group_id)
 
 
-def get_groups(db: Session, user_id: int) -> Query:
-    return db.query(Group).options(
+def get_groups_stmt(user_id: int) -> Query:
+    return select(Group).options(
         joinedload(Group.members),
         joinedload(Group.headquarter).joinedload(
-            Headquarter.region)).filter(
+            Headquarter.region)).where(
         Group.director_id == user_id)
 
 
-def get_group(
-        db: Session,
+async def get_groups(db: AsyncSession, user_id: int) -> list[Group]:
+    result = await db.execute(get_groups_stmt(user_id))
+    result.unique()
+    return result.scalars()
+
+
+async def get_group(
+        db: AsyncSession,
         user_id: int,
         group_id: int) -> Group:
-    return get_groups(db, user_id).filter(Group.id == group_id).first()
+    result = await db.execute(get_groups_stmt(user_id).
+                              where(Group.id == group_id))
+    result.unique()
+    return result.scalars().one()
 
 
-def get_group_by_name(
-        db: Session,
+async def get_group_by_name(
+        db: AsyncSession,
         user_id: int,
         group_name: str) -> Group | None:
-    return get_groups(db, user_id).filter(Group.name == group_name).first()
+    result = await db.execute(get_groups_stmt(user_id).
+                              where(Group.name == group_name))
+    result.unique()
+    return result.scalars().one()
 
 
-def get_group_on_hq(
-        db: Session,
+async def get_group_on_hq(
+        db: AsyncSession,
         user_id: int,
         headquarter_id: int,
         group_id: int) -> Group | None:
-    return get_groups(db, user_id).filter(
-        Group.id == group_id,
-        Group.headquarter_id == headquarter_id).first()
+    result = await db.execute(get_groups_stmt(user_id).
+                              where(Group.id == group_id,
+                                    Group.headquarter_id == headquarter_id))
+    result.unique()
+    return result.scalars().one()
 
 
-def create_group(
-        db: Session,
+async def create_group(
+        db: AsyncSession,
         user_id: int,
         group_data: GroupWriteSchema) -> Group:
     db_group = Group(**group_data.dict(), director_id=user_id)
     db.add(db_group)
-    db.commit()
-    db.refresh(db_group)
+    await db.commit()
+    await db.refresh(db_group)
     return db_group
 
 
-def change_group_dislocation(
-        db: Session,
+async def change_group_dislocation(
+        db: AsyncSession,
         user_id: int,
         group_id: int,
         new_group_data: GroupChangeHQSchema) -> None:
-    get_groups(db, user_id).filter(Group.id == group_id).update(
-        new_group_data.dict())
-    db.commit()
+    await db.execute(update(Group).options(
+        joinedload(Group.members),
+        joinedload(Group.headquarter).joinedload(
+            Headquarter.region)).where(
+        Group.director_id == user_id,
+        Group.id == group_id).values(
+        **new_group_data.dict()))
+
+    await db.commit()
 
 
-def get_ambushed(
-        db: Session,
+async def get_ambushed(
+        db: AsyncSession,
         group_id: int,
         enemy: EnemySchema) -> EnemyResponseSchema:
-    return fight(
+    return await fight(
         db,
-        db.query(Group).get(group_id),
+        await db.get(Group, (group_id,)),
         enemy,
-        get_random_region(db))
+        await get_random_region(db))

@@ -1,6 +1,6 @@
 import httpx
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from data.group import Group, GroupAttackResponseSchema, GroupAttackSchema
 from data.unit import Unit
@@ -8,7 +8,7 @@ import settings
 
 
 def request_beast_attack(
-        db: Session,
+        db: AsyncSession,
         group: Group,
         target_id: int) -> GroupAttackResponseSchema:
     attack_data = GroupAttackSchema.from_orm(group)

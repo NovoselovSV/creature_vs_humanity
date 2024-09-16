@@ -22,8 +22,8 @@ class AdminAuth(AuthenticationBackend):
     async def login(self, request: Request) -> bool:
         form = await request.form()
         password = form['password']
-        validate_admin(
-            next(get_db()),
+        await validate_admin(
+            await anext(get_db()),
             form['username'],
             password)
         request.session.update({'token': pwd_context.hash(password)})

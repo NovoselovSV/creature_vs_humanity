@@ -2,7 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, status
 from fastapi.exceptions import HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from SQL_db.database import get_db
 from data.unit import UnitChangeGroupSchema, UnitLevelUpSchema, UnitReadSchema
@@ -21,7 +21,7 @@ router = APIRouter(prefix='/units')
             response_model=list[UnitReadSchema])
 def units(
         current_user: Annotated[User, Depends(get_current_user)],
-        db: Session = Depends(get_db)):
+        db: AsyncSession = Depends(get_db)):
     return get_units(db, current_user.id)
 
 
@@ -32,7 +32,7 @@ def units(
 def unit(
         unit_id: int,
         current_user: Annotated[User, Depends(get_current_user)],
-        db: Session = Depends(get_db)):
+        db: AsyncSession = Depends(get_db)):
     return get_object_or_404(
         get_unit,
         db,
@@ -47,7 +47,7 @@ def change_group(
         unit_id: int,
         new_group: UnitChangeGroupSchema,
         current_user: Annotated[User, Depends(get_current_user)],
-        db: Session = Depends(get_db)):
+        db: AsyncSession = Depends(get_db)):
     unit = get_object_or_404(
         get_unit,
         db,
@@ -70,7 +70,7 @@ def level_up(
         unit_id: int,
         parametr: UnitLevelUpSchema,
         current_user: Annotated[User, Depends(get_current_user)],
-        db: Session = Depends(get_db)):
+        db: AsyncSession = Depends(get_db)):
     unit = get_object_or_404(
         get_unit,
         db,

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from .shortcuts import get_object_or_404
 from SQL_db.database import get_db
@@ -11,8 +11,8 @@ router = APIRouter(prefix='/regions')
 
 
 @router.get('/', response_model=list[RegionSchema])
-def regions(db: Session = Depends(get_db)):
-    return get_regions(db)
+async def regions(db: AsyncSession = Depends(get_db)):
+    return await get_regions(db)
 
 
 @router.get('/{region_id}',
@@ -20,5 +20,5 @@ def regions(db: Session = Depends(get_db)):
             responses={status.HTTP_404_NOT_FOUND:
                        {'model': ErrorMessageSchema,
                         'description': 'Item not found'}})
-def region(region_id: int, db: Session = Depends(get_db)):
-    return get_object_or_404(get_region, db, region_id)
+async def region(region_id: int, db: AsyncSession = Depends(get_db)):
+    return await get_object_or_404(get_region, db, region_id)

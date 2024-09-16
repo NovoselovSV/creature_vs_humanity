@@ -1,4 +1,5 @@
-from sqlalchemy.orm import Query, Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Query
 
 from data.unit import Unit, UnitChangeGroupSchema
 from data.user import UserWriteSchema
@@ -7,23 +8,23 @@ from service.tasks import create_unit_celery, get_experience_celery
 import settings
 
 
-def get_units(db: Session, user_id: int) -> Query:
+def get_units(db: AsyncSession, user_id: int) -> Query:
     return db.query(Unit).filter(Unit.director_id == user_id)
 
 
 def get_unit(
-        db: Session,
+        db: AsyncSession,
         user_id: int,
         unit_id: int) -> Unit | None:
     return get_units(db, user_id).filter(
         Unit.id == unit_id).first()
 
 
-def count_members(db: Session, group_id: int) -> int:
+def count_members(db: AsyncSession, group_id: int) -> int:
     return db.query(Unit).filter(Unit.group_id == group_id).count()
 
 
-def increase_members_experience(db: Session, group_id: int) -> None:
+def increase_members_experience(db: AsyncSession, group_id: int) -> None:
     create_group_task(group_id, get_experience_celery, group_id)
 
 
@@ -35,7 +36,7 @@ def create_new_unit(
 
 
 def change_unit_group(
-        db: Session,
+        db: AsyncSession,
         unit_id: int,
         director_id: int,
         new_group_data: UnitChangeGroupSchema) -> None:
@@ -46,7 +47,7 @@ def change_unit_group(
 
 
 def decrease_unit_experience(
-        db: Session,
+        db: AsyncSession,
         unit_id: int,
         director_id: int) -> None:
     get_units(db, director_id).filter(
@@ -56,7 +57,7 @@ def decrease_unit_experience(
 
 
 def level_up_unit(
-        db: Session,
+        db: AsyncSession,
         unit_id: int,
         director_id: int,
         parametr_name: str) -> None:

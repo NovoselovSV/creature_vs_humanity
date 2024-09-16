@@ -1,9 +1,8 @@
-from collections.abc import Callable
+from collections.abc import Awaitable, Callable
 from typing import Any, Dict, Type
-import hashlib
 
 from fastapi import HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from SQL_db.database import Base
 from data.enemy import EnemySchema
@@ -14,11 +13,11 @@ from service.users import get_user_username
 import settings
 
 
-def validate_credential_data(
-        db: Session,
+async def validate_credential_data(
+        db: AsyncSession,
         username: str,
         password: str) -> User:
-    user = get_user_username(db, username)
+    user = await get_user_username(db, username)
     if not user or password != user.password:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -26,11 +25,11 @@ def validate_credential_data(
     return user
 
 
-def validate_admin(
-        db: Session,
+async def validate_admin(
+        db: AsyncSession,
         username: str,
         password: str) -> User:
-    user = get_user_username(db, username)
+    user = await get_user_username(db, username)
     if not user or password != user.password or not user.is_admin:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -38,8 +37,18 @@ def validate_admin(
     return user
 
 
+def aget_object_or_404(get_object_func: Callable[[
+        int, AsyncSession], Awaitable[Type[Base]]], *args: Any) -> Type[Base]:
+    obj = get_object_func(*args)
+    if not obj:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail='Not found')
+    return obj
+
+
 def get_object_or_404(get_object_func: Callable[[
-        int, Session], Type[Base]], *args: Any) -> Type[Base]:
+        int, AsyncSession], Type[Base]], *args: Any) -> Type[Base]:
     obj = get_object_func(*args)
     if not obj:
         raise HTTPException(

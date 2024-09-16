@@ -1,7 +1,7 @@
 from random import randint, shuffle
 import hashlib
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy_utils.query_chain import copy
 
 from data.enemy import EnemyResponseSchema, EnemySchema
@@ -11,7 +11,7 @@ from data.unit import Unit
 import settings
 
 
-def fight(db: Session, group: Group, enemy: EnemySchema, region: Region):
+def fight(db: AsyncSession, group: Group, enemy: EnemySchema, region: Region):
     group_members = group.members.copy()
     possible_experients_to_member = int(enemy.health / len(group_members))
     possible_experients_to_enemy = sum(

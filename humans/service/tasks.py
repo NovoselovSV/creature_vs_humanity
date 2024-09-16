@@ -1,7 +1,7 @@
 from functools import wraps
 from typing import Any, Dict
 
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from SQL_db.database import get_db
 from celery_app import celery_app
@@ -32,7 +32,7 @@ def add_db_session(func):
 @celery_app.task
 @deleting_key
 @add_db_session
-def get_experience_celery(db: Session, group_id: int):
+def get_experience_celery(db: AsyncSession, group_id: int):
     db.query(Unit).filter(Unit.group_id == group_id).update(
         {'experience': Unit.experience + settings.EARN_EXPERIENCE})
     db.commit()
@@ -41,7 +41,7 @@ def get_experience_celery(db: Session, group_id: int):
 @celery_app.task
 @deleting_key
 @add_db_session
-def create_hq_celery(db: Session,
+def create_hq_celery(db: AsyncSession,
                      hq_data: Dict[str, Any],
                      director_id: int,
                      group_id: int):
@@ -59,7 +59,7 @@ def create_hq_celery(db: Session,
 @celery_app.task
 @deleting_key
 @add_db_session
-def create_unit_celery(db: Session,
+def create_unit_celery(db: AsyncSession,
                        unit_data: Dict[str, Any],
                        director_id: int):
     db_unit = Unit(**unit_data, director_id=director_id)
@@ -70,7 +70,7 @@ def create_unit_celery(db: Session,
 @celery_app.task
 @deleting_key
 @add_db_session
-def increase_recruitment_celery(db: Session,
+def increase_recruitment_celery(db: AsyncSession,
                                 headquarter_id: int,
                                 amount_units: int):
     db.query(Headquarter).filter(Headquarter.id ==

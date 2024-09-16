@@ -1,6 +1,6 @@
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from data.group import GroupBuilderSchema
 from service.groups import get_group_on_hq
@@ -18,31 +18,31 @@ from service.headquarters import (
     get_headquarters)
 from service.login import get_current_user
 from web.shortcuts import (
+    aget_object_or_404,
     check_group_availability,
     check_hq_availability,
-    get_error_openapi_response,
-    get_object_or_404)
+    get_error_openapi_response)
 
 router = APIRouter(prefix='/headquarters')
 
 
 @router.get('/',
             response_model=list[HeadquarterReadSchema])
-def headquarters(
+async def headquarters(
         current_user: Annotated[User, Depends(get_current_user)],
-        db: Session = Depends(get_db)):
-    return get_headquarters(db, current_user.id)
+        db: AsyncSession = Depends(get_db)):
+    return await get_headquarters(db, current_user.id)
 
 
 @router.get('/{headquarter_id}',
             response_model=HeadquarterReadSchema,
             responses=get_error_openapi_response(
                 {status.HTTP_404_NOT_FOUND: 'Headquarter not found'}))
-def headquarter(
+async def headquarter(
         headquarter_id: int,
         current_user: Annotated[User, Depends(get_current_user)],
-        db: Session = Depends(get_db)):
-    return get_object_or_404(
+        db: AsyncSession = Depends(get_db)):
+    return await aget_object_or_404(
         get_headquarter,
         db,
         current_user.id,
@@ -56,12 +56,12 @@ def headquarter(
                   'Not enough recruitment process or other problem',
                   status.HTTP_404_NOT_FOUND:
                   'Headquarter or group not found'}))
-def deploy_unit(
+async def deploy_unit(
         headquarter_id: int,
         unit_data: UnitWriteSchema,
         current_user: Annotated[User, Depends(get_current_user)],
-        db: Session = Depends(get_db)):
-    hq = get_object_or_404(
+        db: AsyncSession = Depends(get_db)):
+    hq = await aget_object_or_404(
         get_headquarter,
         db,
         current_user.id,
@@ -70,15 +70,15 @@ def deploy_unit(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail='Not enough recruitment process')
-    get_object_or_404(
+    await aget_object_or_404(
         get_group_on_hq,
         db,
         current_user.id,
         headquarter_id,
         unit_data.group_id)
     check_hq_availability(hq.id)
-    decrease_recruitment_process(db, hq.id)
-    create_new_unit(hq.id, unit_data, current_user.id)
+    await decrease_recruitment_process(db, hq.id)
+    await create_new_unit(hq.id, unit_data, current_user.id)
 
 
 @router.post('/{headquarter_id}/deploy_hq',
@@ -90,13 +90,13 @@ def deploy_unit(
                   'Headquarter or group not found',
                   status.HTTP_400_BAD_REQUEST:
                   'Headquarter name already obtained'}))
-def deploy_hq(
+async def deploy_hq(
         headquarter_id: int,
         group_data: GroupBuilderSchema,
         hq_data: HeadquarterWriteSchema,
         current_user: Annotated[User, Depends(get_current_user)],
-        db: Session = Depends(get_db)):
-    hq = get_object_or_404(
+        db: AsyncSession = Depends(get_db)):
+    hq = await aget_object_or_404(
         get_headquarter,
         db,
         current_user.id,
@@ -105,11 +105,11 @@ def deploy_hq(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail='Not enough recruitment process')
-    if get_headquarter_by_name(db, current_user.id, hq_data.name):
+    if await get_headquarter_by_name(db, current_user.id, hq_data.name):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail='You have already obtaine this name')
-    group = get_object_or_404(
+    group = await aget_object_or_404(
         get_group_on_hq,
         db,
         current_user.id,
@@ -120,6 +120,6 @@ def deploy_hq(
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail='Not enough group members')
-    decrease_recruitment_process(
+    await decrease_recruitment_process(
         db, hq.id, settings.RECRUITMENT_PROCESS_TO_NEW_HQ)
     create_new_headquarter(group.id, hq_data, current_user.id)

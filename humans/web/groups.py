@@ -1,7 +1,7 @@
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from SQL_db.database import get_db
 from data.enemy import EnemyResponseSchema, EnemySchema
@@ -13,6 +13,7 @@ from service.login import get_current_user
 from service.requests import request_beast_attack
 from service.units import count_members, increase_members_experience
 from web.shortcuts import (
+    aget_object_or_404,
     check_group_availability,
     get_error_openapi_response,
     get_object_or_404,
@@ -24,21 +25,21 @@ router = APIRouter(prefix='/groups')
 
 @router.get('/',
             response_model=list[GroupReadSchema])
-def groups(
+async def groups(
         current_user: Annotated[User, Depends(get_current_user)],
-        db: Session = Depends(get_db)):
-    return get_groups(db, current_user.id)
+        db: AsyncSession = Depends(get_db)):
+    return await get_groups(db, current_user.id)
 
 
 @router.get('/{group_id}',
             response_model=GroupReadSchema,
             responses=get_error_openapi_response(
                 {status.HTTP_404_NOT_FOUND: 'Group not found'}))
-def group(
+async def group(
         group_id: int,
         current_user: Annotated[User, Depends(get_current_user)],
-        db: Session = Depends(get_db)):
-    return get_object_or_404(
+        db: AsyncSession = Depends(get_db)):
+    return await aget_object_or_404(
         get_group,
         db,
         current_user.id,
@@ -54,7 +55,7 @@ def group(
 def group_creation(
         group_data: GroupWriteSchema,
         current_user: Annotated[User, Depends(get_current_user)],
-        db: Session = Depends(get_db)):
+        db: AsyncSession = Depends(get_db)):
     if get_group_by_name(db, current_user.id, group_data.name):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -75,7 +76,7 @@ def group_creation(
 def group_defense(
         group_id: int,
         creature_data: EnemySchema,
-        db: Session = Depends(get_db)):
+        db: AsyncSession = Depends(get_db)):
     get_object_or_404(
         get_bare_group,
         db,
@@ -96,7 +97,7 @@ def attack(
         group_id: int,
         target: GroupTargetSchema,
         current_user: Annotated[User, Depends(get_current_user)],
-        db: Session = Depends(get_db)):
+        db: AsyncSession = Depends(get_db)):
     group = get_object_or_404(
         get_group,
         db,
@@ -113,7 +114,7 @@ def attack(
 def push_recruitment(
         group_id: int,
         current_user: Annotated[User, Depends(get_current_user)],
-        db: Session = Depends(get_db)):
+        db: AsyncSession = Depends(get_db)):
     group = get_object_or_404(
         get_group,
         db,
@@ -130,7 +131,7 @@ def push_recruitment(
 def training(
         group_id: int,
         current_user: Annotated[User, Depends(get_current_user)],
-        db: Session = Depends(get_db)):
+        db: AsyncSession = Depends(get_db)):
     get_object_or_404(
         get_group,
         db,

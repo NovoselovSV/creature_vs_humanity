@@ -1,23 +1,26 @@
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from data.user import User, UserWriteSchema
 
 
-def get_users(db: Session) -> list[User]:
-    return db.query(User).all()
+async def get_users(db: AsyncSession) -> list[User]:
+    result = await db.execute(select(User))
+    return result.scalars()
 
 
-def get_user(db: Session, user_id: int) -> User | None:
-    return db.query(User).filter(User.id == user_id).first()
+async def get_user(db: AsyncSession, user_id: int) -> User | None:
+    return await db.get(User, (user_id,))
 
 
-def get_user_username(db: Session, username: str) -> User | None:
-    return db.query(User).filter(User.username == username).first()
+async def get_user_username(db: AsyncSession, username: str) -> User | None:
+    result = await db.execute(select(User).where(User.username == username))
+    return result.scalars().one()
 
 
-def create_user(db: Session, user: UserWriteSchema) -> User:
+async def create_user(db: AsyncSession, user: UserWriteSchema) -> User:
     db_user = User(**user.dict())
     db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
+    await db.commit()
+    await db.refresh(db_user)
     return db_user

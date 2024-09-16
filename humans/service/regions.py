@@ -1,17 +1,19 @@
 from random import choice
 
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from data.region import Region
 
 
-def get_regions(db: Session) -> list[Region]:
-    return db.query(Region).all()
+async def get_regions(db: AsyncSession) -> list[Region]:
+    result = await db.execute(select(Region))
+    return result.scalars()
 
 
-def get_region(db: Session, region_id: int) -> Region:
-    return db.query(Region).filter(Region.id == region_id).first()
+async def get_region(db: AsyncSession, region_id: int) -> Region:
+    return await db.get(Region, (region_id,))
 
 
-def get_random_region(db: Session) -> Region:
-    return choice(get_regions(db))
+async def get_random_region(db: AsyncSession) -> Region:
+    return choice(await get_regions(db))
