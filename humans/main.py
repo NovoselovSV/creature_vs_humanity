@@ -15,8 +15,6 @@ from web import (groups, headquarters, regions, units, users)
 import service.events # noqa
 import settings
 
-Base.metadata.create_all(engine)
-
 app = FastAPI(debug=True)
 
 app.add_middleware(DebugToolbarMiddleware, panels=[
