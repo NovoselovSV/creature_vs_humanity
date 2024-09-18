@@ -28,7 +28,7 @@ class User(Base):
 
     hqs: Mapped[List['data.headquarter.Headquarter']] = relationship()
     groups: Mapped[List['data.group.Group']] = relationship()
-    units: Mapped[List['data.unit.Unit']] = relationship()
+    units: Mapped[List['data.unit.Unit']] = relationship(lazy='selectin')
 
     def __str__(self):
         return f'{self.username}'

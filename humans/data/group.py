@@ -24,10 +24,13 @@ class Group(Base):
     director_id = Column(ForeignKey('users.id'))
     headquarter_id = Column(ForeignKey('headquarters.id', ondelete='RESTRICT'))
 
-    director = relationship('User', back_populates='groups')
-    headquarter = relationship('Headquarter', back_populates='groups')
+    director = relationship('User', back_populates='groups', lazy='select')
+    headquarter = relationship(
+        'Headquarter',
+        back_populates='groups',
+        lazy='select')
 
-    members: Mapped[List['data.unit.Unit']] = relationship()
+    members: Mapped[List['data.unit.Unit']] = relationship(lazy='selectin')
 
     @property
     def on_hq(self):
@@ -50,12 +53,12 @@ class GroupReadShortSchema(BaseModel):
     id: int
     name: str
     on_hq: bool
-    headquarter: HeadquarterReadSchema
 
 
 class GroupReadSchema(GroupReadShortSchema):
     """OpenAPI schema of group to read."""
 
+    headquarter: HeadquarterReadSchema
     members: List[UnitReadShortSchema]
 
 

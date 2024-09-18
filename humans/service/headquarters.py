@@ -27,7 +27,7 @@ async def get_headquarter(
         headquarter_id: int) -> Headquarter | None:
     result = await db.execute(get_base_select_hq_stmt(user_id).
                               where(Headquarter.id == headquarter_id))
-    return result.scalars().one()
+    return result.scalar_one_or_none()
 
 
 async def get_headquarter_by_name(
@@ -36,7 +36,7 @@ async def get_headquarter_by_name(
         headquarter_name: str) -> Headquarter | None:
     result = await db.execute(get_base_select_hq_stmt(user_id).
                               where(Headquarter.name == headquarter_name))
-    return result.scalars().one()
+    return result.scalar_one_or_none()
 
 
 def increase_recruitment_process(

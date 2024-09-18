@@ -37,9 +37,9 @@ async def validate_admin(
     return user
 
 
-def aget_object_or_404(get_object_func: Callable[[
+async def aget_object_or_404(get_object_func: Callable[[
         int, AsyncSession], Awaitable[Type[Base]]], *args: Any) -> Type[Base]:
-    obj = get_object_func(*args)
+    obj = await get_object_func(*args)
     if not obj:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

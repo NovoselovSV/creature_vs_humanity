@@ -9,9 +9,9 @@ from service.enemies import fight
 from service.regions import get_random_region
 
 
-def get_bare_group(db: AsyncSession, group_id: int) -> Query:
-    return db.query(Group).filter(
-        Group.id == group_id)
+async def get_bare_group(db: AsyncSession, group_id: int) -> Group:
+    result = await db.execute(select(Group).where(Group.id == group_id))
+    return result.one_or_none()
 
 
 def get_groups_stmt(user_id: int) -> Query:
@@ -35,7 +35,7 @@ async def get_group(
     result = await db.execute(get_groups_stmt(user_id).
                               where(Group.id == group_id))
     result.unique()
-    return result.scalars().one()
+    return result.scalar_one_or_none()
 
 
 async def get_group_by_name(
@@ -45,7 +45,7 @@ async def get_group_by_name(
     result = await db.execute(get_groups_stmt(user_id).
                               where(Group.name == group_name))
     result.unique()
-    return result.scalars().one()
+    return result.scalar_one_or_none()
 
 
 async def get_group_on_hq(
@@ -57,7 +57,7 @@ async def get_group_on_hq(
                               where(Group.id == group_id,
                                     Group.headquarter_id == headquarter_id))
     result.unique()
-    return result.scalars().one()
+    return result.scalar_one_or_none()
 
 
 async def create_group(

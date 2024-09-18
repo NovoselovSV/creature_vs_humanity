@@ -18,8 +18,8 @@ class Unit(Base):
     attack = Column(Integer, default=settings.START_UNIT_ATTACK)
     group_id = Column(ForeignKey('groups.id', ondelete='RESTRICT'))
 
-    director = relationship('User', back_populates='units')
-    group = relationship('Group', back_populates='members')
+    director = relationship('User', back_populates='units', lazy='select')
+    group = relationship('Group', back_populates='members', lazy='select')
 
     def __str__(self):
         return f'Soldier {self.id}'

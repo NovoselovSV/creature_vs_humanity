@@ -78,7 +78,7 @@ async def deploy_unit(
         unit_data.group_id)
     check_hq_availability(hq.id)
     await decrease_recruitment_process(db, hq.id)
-    await create_new_unit(hq.id, unit_data, current_user.id)
+    create_new_unit(hq.id, unit_data, current_user.id)
 
 
 @router.post('/{headquarter_id}/deploy_hq',
@@ -116,7 +116,7 @@ async def deploy_hq(
         headquarter_id,
         group_data.group_id)
     check_group_availability(group.id)
-    if not count_members(db, group.id):
+    if not await count_members(db, group.id):
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail='Not enough group members')
