@@ -1,10 +1,39 @@
+import asyncio
+from asyncio.tasks import current_task
+from contextlib import asynccontextmanager
 from typing import Any
 
+from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import Query
 
+from SQL_db.database import SQLALCHEMY_DATABASE_URL
 from data.unit import Unit
 import settings
 from redis_app import redis_instance
+
+engine = create_async_engine(
+    SQLALCHEMY_DATABASE_URL
+)
+
+CelerySession = async_sessionmaker(
+    engine,
+    class_=AsyncSession,
+    expire_on_commit=False)
+
+loop = asyncio.get_event_loop()
+
+
+@asynccontextmanager
+async def aget_db():
+    scoped_factory = async_scoped_session(
+        CelerySession,
+        scopefunc=current_task,
+    )
+    try:
+        async with scoped_factory() as session:
+            yield session
+    finally:
+        await scoped_factory.remove()
 
 
 def where_unit_id(query: Query, id: int) -> Query:
