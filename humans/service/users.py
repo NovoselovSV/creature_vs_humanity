@@ -6,7 +6,7 @@ from data.user import User, UserWriteSchema
 
 async def get_users(db: AsyncSession) -> list[User]:
     result = await db.execute(select(User))
-    return result.scalars()
+    return result.scalars().all()
 
 
 async def get_user(db: AsyncSession, user_id: int) -> User | None:
@@ -15,7 +15,7 @@ async def get_user(db: AsyncSession, user_id: int) -> User | None:
 
 async def get_user_username(db: AsyncSession, username: str) -> User | None:
     result = await db.execute(select(User).where(User.username == username))
-    return result.scalars().one()
+    return result.scalars().one_or_none()
 
 
 async def create_user(db: AsyncSession, user: UserWriteSchema) -> User:

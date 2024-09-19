@@ -18,7 +18,7 @@ async def get_headquarters(
         db: AsyncSession,
         user_id: int) -> list[Headquarter]:
     result = await db.execute(get_base_select_hq_stmt(user_id))
-    return result.scalars()
+    return result.scalars().all()
 
 
 async def get_headquarter(

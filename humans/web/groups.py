@@ -85,7 +85,7 @@ async def group_defense(
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE,
             detail='Group at hq')
-    return get_ambushed(db, group_id, creature_data)
+    return await get_ambushed(db, group_id, creature_data)
 
 
 @router.post('/{group_id}/attack',
@@ -104,7 +104,7 @@ async def attack(
         current_user.id,
         group_id)
     check_group_availability(group_id)
-    return request_beast_attack(db, group, target.target_id)
+    return await request_beast_attack(db, group, target.target_id)
 
 
 @router.patch('/{group_id}/recruite',

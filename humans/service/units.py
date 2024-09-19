@@ -15,7 +15,7 @@ def get_units_stmt(user_id: int) -> Query:
 
 async def get_units(db: AsyncSession, user_id: int) -> list[Unit]:
     result = await db.execute(get_units_stmt(user_id))
-    return result.scalars()
+    return result.scalars().all()
 
 
 async def get_unit(

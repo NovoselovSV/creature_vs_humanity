@@ -1,7 +1,14 @@
 from typing import Any
 
+from sqlalchemy.orm import Query
+
+from data.unit import Unit
 import settings
 from redis_app import redis_instance
+
+
+def where_unit_id(query: Query, id: int) -> Query:
+    return query.where(Unit.id == id)
 
 
 def create_group_task(group_id: int, task: Any, *args: Any) -> None:

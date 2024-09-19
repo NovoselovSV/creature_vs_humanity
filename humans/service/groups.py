@@ -25,7 +25,7 @@ def get_groups_stmt(user_id: int) -> Query:
 async def get_groups(db: AsyncSession, user_id: int) -> list[Group]:
     result = await db.execute(get_groups_stmt(user_id))
     result.unique()
-    return result.scalars()
+    return result.scalars().all()
 
 
 async def get_group(

@@ -8,7 +8,7 @@ from data.region import Region
 
 async def get_regions(db: AsyncSession) -> list[Region]:
     result = await db.execute(select(Region))
-    return result.scalars()
+    return result.scalars().all()
 
 
 async def get_region(db: AsyncSession, region_id: int) -> Region:

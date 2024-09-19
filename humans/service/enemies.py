@@ -1,6 +1,7 @@
 from random import randint, shuffle
 import hashlib
 
+from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy_utils.query_chain import copy
 
@@ -8,10 +9,15 @@ from data.enemy import EnemyResponseSchema, EnemySchema
 from data.group import Group
 from data.region import Region
 from data.unit import Unit
+from service.shortcuts import where_unit_id
 import settings
 
 
-def fight(db: AsyncSession, group: Group, enemy: EnemySchema, region: Region):
+async def fight(
+        db: AsyncSession,
+        group: Group,
+        enemy: EnemySchema,
+        region: Region):
     group_members = group.members.copy()
     possible_experients_to_member = int(enemy.health / len(group_members))
     possible_experients_to_enemy = sum(
@@ -26,23 +32,26 @@ def fight(db: AsyncSession, group: Group, enemy: EnemySchema, region: Region):
             defender_attack(pawn, region, enemy)
         if pawn.health > 0:
             queue.insert(0, pawn)
-    apply_group_results(db, group_members, possible_experients_to_member)
+    await apply_group_results(db, group_members, possible_experients_to_member)
     return EnemyResponseSchema(
         health=enemy.health, experience=possible_experients_to_enemy)
 
 
-def apply_group_results(db, units, experience):
-    query = db.query(Unit)
+async def apply_group_results(
+        db: AsyncSession,
+        units: list[Unit],
+        experience: int):
     for unit in units:
-        query_unit = query.filter(Unit.id == unit.id)
         if unit.health > 0:
-            query_unit.update(
-                {'health': unit.health,
-                 'experience': Unit.experience +
-                 experience})
+            await db.execute(
+                where_unit_id(
+                    update(Unit).values(
+                        health=unit.health,
+                        experience=Unit.experience +
+                        experience), unit.id))
         else:
-            query_unit.delete()
-    db.commit()
+            await db.execute(where_unit_id(delete(Unit), unit.id))
+    await db.commit()
 
 
 def attacker_attack(creature, region, units, attacked_unit_number):

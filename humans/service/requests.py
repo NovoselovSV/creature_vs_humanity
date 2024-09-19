@@ -1,27 +1,33 @@
 import httpx
 from fastapi import HTTPException, status
+from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Query
 
 from data.group import Group, GroupAttackResponseSchema, GroupAttackSchema
 from data.unit import Unit
+from service.shortcuts import where_unit_id
 import settings
 
 
-def request_beast_attack(
+async def request_beast_attack(
         db: AsyncSession,
         group: Group,
         target_id: int) -> GroupAttackResponseSchema:
     attack_data = GroupAttackSchema.from_orm(group)
-    r = httpx.post(
-        f'{settings.ATTACK_URL}'
-        f'{settings.GROUP_ATTACK_ENDPOINT.format(beast_id=target_id)}',
-        data=attack_data.json(), headers={'Content-Type': 'application/json'})
-    if r.status_code != status.HTTP_201_CREATED:
+    beast_defense_response = None
+    async with httpx.AsyncClient() as client:
+        beast_defense_response = await client.post(
+            f'{settings.ATTACK_URL}'
+            f'{settings.GROUP_ATTACK_ENDPOINT.format(beast_id=target_id)}',
+            data=attack_data.json(),
+            headers={'Content-Type': 'application/json'})
+    if beast_defense_response.status_code != status.HTTP_201_CREATED:
         raise HTTPException(
-            status_code=r.status_code,
-            detail=r.json())
+            status_code=beast_defense_response.status_code,
+            detail=beast_defense_response.json())
     try:
-        response = GroupAttackResponseSchema(**r.json())
+        response = GroupAttackResponseSchema(**beast_defense_response.json())
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_406_NOT_ACCEPTABLE,
@@ -29,14 +35,13 @@ def request_beast_attack(
         )
     for member_dict in response.dict().get('members', []):
         member_health = member_dict.get('health', 0)
-        query = db.query(Unit).filter(Unit.id == member_dict.get('id', 0))
+        member_id = member_dict.get('id', 0)
         if member_health > 0:
-            query.update(
-                {'health':
-                    member_health,
-                    'experience':
-                    Unit.experience + member_dict.get('experience', 0)})
+            await db.execute(where_unit_id(update(Unit).values(
+                health=member_health,
+                experience=Unit.experience + member_dict.get('experience', 0)),
+                member_id))
         else:
-            query.delete()
-    db.commit()
+            await db.execute(where_unit_id(delete(Unit), member_id))
+    await db.commit()
     return response
