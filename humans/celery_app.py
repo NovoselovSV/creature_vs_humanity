@@ -9,3 +9,4 @@ celery_app = Celery(
     include=('service.tasks',))
 
 celery_app.conf.result_expires = CELERY_TASK_EXPIRE_SEC
+celery_app.conf.task_routes = {'service.tasks.*': {'queue': 'humans'}}
