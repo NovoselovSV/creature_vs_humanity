@@ -1,14 +1,21 @@
+import os
 from datetime import timedelta
-
 from pathlib import Path
+
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure--((konnfyz4%k_6c7u5^-l%k-gma!(1*qlp8#@j$g#h+5(+1na'
+SECRET_KEY = os.getenv(
+    'SECRET_KEY',
+    'django-insecure--((konnfyz4%k_6c7u5^-l%k-gma!(1*qlp8#@j$g#h+5(+1na')
 
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split()
+
+if not ALLOWED_HOSTS:
+    raise ImproperlyConfigured('Empty ALLOWED_HOSTS')
 
 
 INSTALLED_APPS = [

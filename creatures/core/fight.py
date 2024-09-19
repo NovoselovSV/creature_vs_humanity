@@ -2,9 +2,9 @@ from random import randint, shuffle
 
 from beast.models import Beast
 from core.serializers import (
-    GroupResponseSerializer,
-    HumanResponseSerializer,
-    HumanSerializer)
+    GroupResponseSerializer, # noqa
+    HumanResponseSerializer, # noqa
+    HumanSerializer) # noqa
 
 
 def fight(beast, units, area):
