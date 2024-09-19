@@ -15,32 +15,8 @@ from data.headquarter import Headquarter
 from data.unit import Unit
 from redis_app import redis_instance
 from service.groups import change_group_dislocation
+from service.shortcuts import aget_db, loop
 import settings
-
-
-engine = create_async_engine(
-    SQLALCHEMY_DATABASE_URL
-)
-
-CelerySession = async_sessionmaker(
-    engine,
-    class_=AsyncSession,
-    expire_on_commit=False)
-
-loop = asyncio.get_event_loop()
-
-
-@asynccontextmanager
-async def aget_db():
-    scoped_factory = async_scoped_session(
-        CelerySession,
-        scopefunc=current_task,
-    )
-    try:
-        async with scoped_factory() as session:
-            yield session
-    finally:
-        await scoped_factory.remove()
 
 
 def deleting_key(func):
