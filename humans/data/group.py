@@ -5,13 +5,13 @@ from pydantic import BaseModel, validator, Field
 from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, relationship
 
+from . import unit
+from .headquarter import HeadquarterReadSchema
+from .shortcuts import get_bytes_from_stringed
 from SQL_db.database import Base
+from web.shortcuts import get_redis_group_key
 import data
 import settings
-from data.headquarter import HeadquarterReadSchema
-from data.shortcuts import get_bytes_from_stringed
-from data.unit import UnitAttackResponseSchema, UnitAttackSchema, UnitReadShortSchema
-from web.shortcuts import get_redis_group_key
 
 
 class Group(Base):
@@ -59,7 +59,7 @@ class GroupReadSchema(GroupReadShortSchema):
     """OpenAPI schema of group to read."""
 
     headquarter: HeadquarterReadSchema
-    members: List[UnitReadShortSchema]
+    members: List[unit.UnitReadShortSchema]
 
 
 class GroupWriteSchema(BaseModel):
@@ -84,7 +84,7 @@ class GroupChangeHQSchema(BaseModel):
 class GroupAttackSchema(BaseModel):
     """OpenAPI schema of group to attack enemy."""
 
-    members: List[UnitAttackSchema]
+    members: List[unit.UnitAttackSchema]
     signature: str = ''
 
     @validator('signature', always=True)
@@ -107,7 +107,7 @@ class GroupAttackSchema(BaseModel):
 class GroupAttackResponseSchema(BaseModel):
     """OpenAPI schema of group to response about attack enemy."""
 
-    members: List[UnitAttackResponseSchema]
+    members: List[unit.UnitAttackResponseSchema]
     signature: str = Field(exclude=True)
 
     @validator('signature')

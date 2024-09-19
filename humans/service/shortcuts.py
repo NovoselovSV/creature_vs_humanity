@@ -3,7 +3,7 @@ from asyncio.tasks import current_task
 from contextlib import asynccontextmanager
 from typing import Any
 
-from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session, async_sessionmaker, create_async_engine
+from sqlalchemy.ext import asyncio as sqlal_asyncio
 from sqlalchemy.orm import Query
 
 from SQL_db.database import SQLALCHEMY_DATABASE_URL
@@ -11,13 +11,13 @@ from data.unit import Unit
 import settings
 from redis_app import redis_instance
 
-engine = create_async_engine(
+engine = sqlal_asyncio.create_async_engine(
     SQLALCHEMY_DATABASE_URL
 )
 
-CelerySession = async_sessionmaker(
+CelerySession = sqlal_asyncio.async_sessionmaker(
     engine,
-    class_=AsyncSession,
+    class_=sqlal_asyncio.AsyncSession,
     expire_on_commit=False)
 
 loop = asyncio.get_event_loop()
@@ -25,7 +25,7 @@ loop = asyncio.get_event_loop()
 
 @asynccontextmanager
 async def aget_db():
-    scoped_factory = async_scoped_session(
+    scoped_factory = sqlal_asyncio.async_scoped_session(
         CelerySession,
         scopefunc=current_task,
     )

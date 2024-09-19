@@ -5,9 +5,9 @@ import click
 
 from data.user import User
 from data.headquarter import Headquarter  # noqa
-from data.group import Group
+from data.group import Group  # noqa
 from service.shortcuts import aget_db
-from service.users import get_user_username  # noqa
+from service.users import get_user_username
 
 
 def make_sync(func):

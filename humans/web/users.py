@@ -3,22 +3,17 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-import jwt
 from sqlalchemy.ext.asyncio import AsyncSession
+import jwt
 
-from .shortcuts import (
-    aget_object_or_404,
-    get_error_openapi_response,
-    validate_credential_data)
+from . import shortcuts as sc
 from SQL_db.database import get_db
 from data.general_data import ErrorMessageSchema
-from data.user import UserReadSchema, UserWriteSchema
-from settings import (
-    ACCESS_TOKEN_EXPIRE_DAYS,
-    ALGORITHM,
-    SECRET_KEY)
 from data.login import Token
+from data.user import UserReadSchema, UserWriteSchema
 from service.users import create_user, get_user, get_user_username, get_users
+import settings as project_settings
+
 
 router = APIRouter(prefix='/users')
 
@@ -29,16 +24,16 @@ router = APIRouter(prefix='/users')
                          'description': 'Invalid credential data'}})
 async def login(user_data: Annotated[OAuth2PasswordRequestForm, Depends(
 )], db: AsyncSession = Depends(get_db)) -> Token:
-    user = await validate_credential_data(db,
-                                          user_data.username,
-                                          user_data.password)
+    user = await sc.validate_credential_data(db,
+                                             user_data.username,
+                                             user_data.password)
     return Token(
         access_token=jwt.encode(
             {'id': user.id,
              'exp': datetime.now(timezone.utc) +
-             timedelta(days=ACCESS_TOKEN_EXPIRE_DAYS)},
-            SECRET_KEY,
-            algorithm=ALGORITHM),
+             timedelta(days=project_settings.ACCESS_TOKEN_EXPIRE_DAYS)},
+            project_settings.SECRET_KEY,
+            algorithm=project_settings.ALGORITHM),
         token_type='bearer')
 
 
@@ -48,7 +43,7 @@ async def login(user_data: Annotated[OAuth2PasswordRequestForm, Depends(
                        {'model': ErrorMessageSchema,
                         'description': 'Item not found'}})
 async def user(user_id: int, db: AsyncSession = Depends(get_db)):
-    return await aget_object_or_404(get_user, db, user_id)
+    return await sc.aget_object_or_404(get_user, db, user_id)
 
 
 @router.get('/', response_model=list[UserReadSchema])
@@ -59,7 +54,7 @@ async def users(db: AsyncSession = Depends(get_db)):
 @router.post('/',
              response_model=UserReadSchema,
              status_code=status.HTTP_201_CREATED,
-             responses=get_error_openapi_response({
+             responses=sc.get_error_openapi_response({
                  status.HTTP_400_BAD_REQUEST:
                  'Username obtained',
                  status.HTTP_500_INTERNAL_SERVER_ERROR:

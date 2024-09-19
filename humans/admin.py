@@ -8,7 +8,7 @@ from starlette.requests import Request
 from wtforms.fields import PasswordField
 from wtforms.fields.core import UnboundField
 
-from SQL_db.database import get_db
+from SQL_db.database import get_db  # noqa
 from data.group import Group
 from data.headquarter import Headquarter
 from data.region import Region

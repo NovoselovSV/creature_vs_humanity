@@ -1,12 +1,8 @@
-import asyncio
-from asyncio import current_task
-from contextlib import asynccontextmanager
 from functools import wraps
 from typing import Any, Dict
 
 from sqlalchemy import update
-from sqlalchemy.ext.asyncio import AsyncSession, async_scoped_session, async_sessionmaker, create_async_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from SQL_db.database import SQLALCHEMY_DATABASE_URL, get_db
 from celery_app import celery_app
