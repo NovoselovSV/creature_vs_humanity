@@ -81,10 +81,12 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
+REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')
+
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': 'redis://127.0.0.1:6379',
+        'LOCATION': REDIS_URL,
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
@@ -93,13 +95,17 @@ CACHES = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_CREATURES_DB', 'postgres'),
+        'USER': os.getenv('POSTGRES_CREATURES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_CREATURES_PASSWORD', ''),
+        'HOST': os.getenv('DB_CREATURES_HOST', 'db_creature'),
+        'PORT': os.getenv('DB_CREATURES_PORT', 5432)
     }
 }
 
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_RESULT_EXPIRES = 600
 
 AUTH_USER_MODEL = 'core.User'
@@ -153,9 +159,10 @@ LVL_UP_ABILITY_NAME_VALUE = {
     'defense': 1,
     'health': 100
 }
-ATTACK_PORT = 8001
-ATTACK_URL = f'http://127.0.0.1:{ATTACK_PORT}/'
+ATTACK_PORT = os.getenv('HUMANS_PORT', 8001)
+ATTACK_HOST = os.getenv('HUMANS_HOST', 'http://127.0.0.1')
+ATTACK_URL = f'{ATTACK_HOST}:{ATTACK_PORT}/'
 GROUP_ATTACK_ENDPOINT = 'groups/{group_id}/_defense/'
 HQ_ATTACK_ENDPOINT = 'hq/{hq_id}/_defense/'
-BEAST_SALT = 'I\'m the beast'
-HUMANS_SALT = 'I\'m only human'
+BEAST_SALT = os.getenv('BEAST_SALT', 'I\'m the beast')
+HUMANS_SALT = os.getenv('HUMANS_SALT', 'I\'m only human')

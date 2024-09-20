@@ -13,7 +13,7 @@ pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl='users/login')
 
-redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379')
+redis_url = os.getenv('REDIS_URL', 'redis://redis:6379')
 
 START_UNIT_HEALTH = 10
 START_UNIT_ATTACK = 20
@@ -30,7 +30,7 @@ MULT_TASK_TIME = 3
 REDIS_HQ_KEY = 'hq_{hq_id}_working'
 REDIS_HQ_WORKING_SECOND = 60
 AMOUNT_UNIT_TO_START = 3
-ENEMY_SALT = os.getenv('ENEMY_SALT', 'I\'m the beast')
+ENEMY_SALT = os.getenv('BEAST_SALT', 'I\'m the beast')
 HUMANS_SALT = os.getenv('HUMANS_SALT', 'I\'m only human')
 ATTACK_PORT = os.getenv('HUMANS_PORT', 8000)
 ATTACK_HOST = os.getenv('HUMANS_HOST', 'http://127.0.0.1')

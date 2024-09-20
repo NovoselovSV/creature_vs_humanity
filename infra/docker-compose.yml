@@ -1,0 +1,75 @@
+version: '3.3'
+
+volumes:
+  pg_data_creature:
+  pg_data_humans:
+  static:
+
+networks:
+  creature_network:
+  humans_network:
+
+services:
+  redis:
+    image: redis:7.4-alpine
+    networks: 
+      - creature_network
+      - humans_network
+  db_creature:
+    image: postgres:13
+    env_file: .env
+    volumes:
+      - pg_data_creature:/var/lib/postgresql/data
+    networks:
+      - creature_network
+  creatures:
+    build: ../creatures/
+    env_file: .env
+    volumes:
+      - static:/creatures_static
+    depends_on:
+      - db_creature
+      - redis
+    networks: 
+      - creature_network
+  creatures_celery:
+    build: ../creatures/
+    env_file: .env
+    command: celery -A creatures worker -Q creatures -l info
+    depends_on:
+      - creatures
+    networks: 
+      - creature_network
+  db_humans:
+    image: postgres:13
+    env_file: .env
+    volumes:
+      - pg_data_humans:/var/lib/postgresql/data
+    networks:
+      - humans_network
+  humans:
+    build: ../humans/
+    env_file: .env
+    depends_on:
+      - db_humans
+      - redis
+    networks: 
+      - humans_network
+  humans_celery:
+    build: ../humans/
+    env_file: .env
+    command: celery -A celery_app.celery_app worker -Q humans -l info
+    depends_on:
+      - humans
+    networks: 
+      - humans_network
+  gateway:
+    image: nginx:1.25.4-alpine
+    depends_on:
+      - humans_celery
+      - creatures_celery
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - static:/usr/share/nginx/html/
