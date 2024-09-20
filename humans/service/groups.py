@@ -2,8 +2,9 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Query, joinedload
 
-from data.enemy import EnemyResponseSchema, EnemySchema
-from data.group import Group, GroupChangeHQSchema, GroupWriteSchema
+from data.enemy_schemas import EnemyResponseSchema, EnemySchema
+from data.group import Group
+from data.group_schemas import GroupChangeHQSchema, GroupWriteSchema
 from data.headquarter import Headquarter
 from service.enemies import fight
 from service.regions import get_random_region

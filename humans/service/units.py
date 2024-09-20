@@ -2,10 +2,11 @@ from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Query
 
-from data.unit import Unit, UnitChangeGroupSchema
-from data.user import UserWriteSchema
-from service.shortcuts import create_group_task, create_hq_task
-from service.tasks import create_unit_celery, get_experience_celery
+from .shortcuts import create_group_task, create_hq_task
+from .tasks import create_unit_celery, get_experience_celery
+from data.unit import Unit
+from data.unit_schemas import UnitChangeGroupSchema
+from data.user_schemas import UserWriteSchema
 import settings
 
 

@@ -9,8 +9,8 @@ import jwt
 from . import shortcuts as sc
 from SQL_db.database import get_db
 from data.general_data import ErrorMessageSchema
-from data.login import Token
-from data.user import UserReadSchema, UserWriteSchema
+from data.login_schemas import Token
+from data.user_schemas import UserReadSchema, UserWriteSchema
 from service.users import create_user, get_user, get_user_username, get_users
 import settings as project_settings
 

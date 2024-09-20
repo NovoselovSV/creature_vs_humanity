@@ -4,9 +4,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import shortcuts as sc
 from SQL_db.database import get_db
-from data.group import GroupBuilderSchema
-from data.headquarter import HeadquarterReadSchema, HeadquarterWriteSchema
-from data.unit import UnitWriteSchema
+from data.group_schemas import GroupBuilderSchema
+from data.headquarter_schemas import HeadquarterReadSchema, HeadquarterWriteSchema
+from data.unit_schemas import UnitWriteSchema
 from data.user import User
 from service import headquarters as hqs
 from service.groups import get_group_on_hq

@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import shortcuts as sc
 from SQL_db.database import get_db
-from data.unit import UnitChangeGroupSchema, UnitLevelUpSchema, UnitReadSchema
-from data.user import User, UserWriteSchema
+from data import unit_schemas
+from data.user import User
 from service.groups import get_group_on_hq
 from service.login import get_current_user
 from service.units import change_unit_group, get_unit, get_units, level_up_unit
@@ -18,7 +18,7 @@ router = APIRouter(prefix='/units')
 
 
 @router.get('/',
-            response_model=list[UnitReadSchema])
+            response_model=list[unit_schemas.UnitReadSchema])
 async def units(
         current_user: Annotated[User, Depends(get_current_user)],
         db: AsyncSession = Depends(get_db)):
@@ -26,7 +26,7 @@ async def units(
 
 
 @router.get('/{unit_id}',
-            response_model=UnitReadSchema,
+            response_model=unit_schemas.UnitReadSchema,
             responses=sc.get_error_openapi_response(
                 {status.HTTP_404_NOT_FOUND: 'Unit not found'}))
 async def unit(
@@ -45,7 +45,7 @@ async def unit(
                   {status.HTTP_404_NOT_FOUND: 'Unit or group not found'}))
 async def change_group(
         unit_id: int,
-        new_group: UnitChangeGroupSchema,
+        new_group: unit_schemas.UnitChangeGroupSchema,
         current_user: Annotated[User, Depends(get_current_user)],
         db: AsyncSession = Depends(get_db)):
     unit = await sc.aget_object_or_404(
@@ -68,7 +68,7 @@ async def change_group(
                    status.HTTP_409_CONFLICT: 'Not enough experience'}))
 async def level_up(
         unit_id: int,
-        parametr: UnitLevelUpSchema,
+        parametr: unit_schemas.UnitLevelUpSchema,
         current_user: Annotated[User, Depends(get_current_user)],
         db: AsyncSession = Depends(get_db)):
     unit = await sc.aget_object_or_404(

@@ -1,13 +1,8 @@
-import hashlib
 from typing import List
 
-from pydantic import BaseModel, validator, Field
 from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, relationship
 
-from . import unit
-from .headquarter import HeadquarterReadSchema
-from .shortcuts import get_bytes_from_stringed
 from SQL_db.database import Base
 from web.shortcuts import get_redis_group_key
 import data
@@ -45,88 +40,3 @@ class Group(Base):
 
     def __str__(self):
         return f'Group {self.name}'
-
-
-class GroupReadShortSchema(BaseModel):
-    """OpenAPI short schema of group to read."""
-
-    id: int
-    name: str
-    on_hq: bool
-
-
-class GroupReadSchema(GroupReadShortSchema):
-    """OpenAPI schema of group to read."""
-
-    headquarter: HeadquarterReadSchema
-    members: List[unit.UnitReadShortSchema]
-
-
-class GroupWriteSchema(BaseModel):
-    """OpenAPI schema of group to write."""
-
-    name: str
-    headquarter_id: int
-
-
-class GroupBuilderSchema(BaseModel):
-    """OpenAPI schema of group to build HQ."""
-
-    group_id: int
-
-
-class GroupChangeHQSchema(BaseModel):
-    """OpenAPI schema of group to change HQ."""
-
-    headquarter_id: int
-
-
-class GroupAttackSchema(BaseModel):
-    """OpenAPI schema of group to attack enemy."""
-
-    members: List[unit.UnitAttackSchema]
-    signature: str = ''
-
-    @validator('signature', always=True)
-    def get_signature(cls, value, values):  # noqa
-        hashed_attack = hashlib.sha256()
-        for member in values.get('members', []):
-            hashed_attack.update(
-                get_bytes_from_stringed(member.id))
-            hashed_attack.update(
-                get_bytes_from_stringed(member.health))
-            hashed_attack.update(
-                get_bytes_from_stringed(member.attack))
-        hashed_attack.update(get_bytes_from_stringed(settings.HUMANS_SALT))
-        return hashed_attack.hexdigest()
-
-    class Config:
-        from_attributes = True
-
-
-class GroupAttackResponseSchema(BaseModel):
-    """OpenAPI schema of group to response about attack enemy."""
-
-    members: List[unit.UnitAttackResponseSchema]
-    signature: str = Field(exclude=True)
-
-    @validator('signature')
-    def validate_signature(cls, value, values):  # noqa
-        hashed_response = hashlib.sha256()
-        for member in values.get('members', []):
-            hashed_response.update(
-                get_bytes_from_stringed(member.id))
-            hashed_response.update(
-                get_bytes_from_stringed(member.health))
-            hashed_response.update(
-                get_bytes_from_stringed(member.experience))
-        hashed_response.update(get_bytes_from_stringed(settings.HUMANS_SALT))
-        if value != hashed_response.hexdigest():
-            raise ValueError('Signature not valid')
-        return value
-
-
-class GroupTargetSchema(BaseModel):
-    """OpenAPI schema of groups target."""
-
-    target_id: int

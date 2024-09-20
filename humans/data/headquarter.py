@@ -1,12 +1,10 @@
 from typing import List
 
-from pydantic import BaseModel
-from sqlalchemy import (Column, ForeignKey, Integer, String, UniqueConstraint)
+from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, relationship
 
 from SQL_db.database import Base
 import data
-from data.region import RegionSchema
 
 
 class Headquarter(Base):
@@ -34,19 +32,3 @@ class Headquarter(Base):
 
     def __str__(self):
         return f'{self.name}'
-
-
-class HeadquarterReadSchema(BaseModel):
-    """OpenAPI schema of headquarter to read."""
-
-    id: int
-    name: str
-    recruitment_process: int
-    region: RegionSchema
-
-
-class HeadquarterWriteSchema(BaseModel):
-    """OpenAPI schema of headquarter to write."""
-
-    name: str
-    region_id: int

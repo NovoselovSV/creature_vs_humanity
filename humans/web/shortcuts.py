@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from SQL_db.database import Base
-from data.enemy import EnemySchema
+from data.enemy_schemas import EnemySchema
 from data.general_data import ErrorMessageSchema
 from data.user import User
 from redis_app import redis_instance

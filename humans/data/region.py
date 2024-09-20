@@ -1,6 +1,5 @@
 from typing import List
 
-from pydantic import BaseModel
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.orm import Mapped, relationship
 
@@ -25,15 +24,3 @@ class Region(Base):
 
     def __str__(self):
         return f'{self.name}'
-
-
-class RegionSchema(BaseModel):
-    """OpenAPI schema of region to read."""
-
-    id: int
-    name: str
-    description: str
-    attacker_attack_impact: int
-    attacker_defense_impact: int
-    defender_attack_impact: int
-    defender_defense_impact: int

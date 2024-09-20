@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .shortcuts import get_object_or_404
 from SQL_db.database import get_db
 from data.general_data import ErrorMessageSchema
-from data.region import RegionSchema
+from data.region_schemas import RegionSchema
 from service.regions import get_region, get_regions
 
 router = APIRouter(prefix='/regions')

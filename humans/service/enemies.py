@@ -3,13 +3,12 @@ import hashlib
 
 from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy_utils.query_chain import copy
 
-from data.enemy import EnemyResponseSchema, EnemySchema
+from .shortcuts import where_unit_id
+from data.enemy_schemas import EnemyResponseSchema, EnemySchema
 from data.group import Group
 from data.region import Region
 from data.unit import Unit
-from service.shortcuts import where_unit_id
 import settings
 
 

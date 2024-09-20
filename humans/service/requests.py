@@ -2,11 +2,11 @@ import httpx
 from fastapi import HTTPException, status
 from sqlalchemy import delete, update
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Query
 
-from data.group import Group, GroupAttackResponseSchema, GroupAttackSchema
+from .shortcuts import where_unit_id
+from data.group import Group
+from data.group_schemas import GroupAttackResponseSchema, GroupAttackSchema
 from data.unit import Unit
-from service.shortcuts import where_unit_id
 import settings
 
 

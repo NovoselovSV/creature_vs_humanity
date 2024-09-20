@@ -1,6 +1,5 @@
 from typing import List
 
-from pydantic import BaseModel
 from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy_utils import EmailType, PasswordType
@@ -32,22 +31,3 @@ class User(Base):
 
     def __str__(self):
         return f'{self.username}'
-
-
-class UserBaseSchema(BaseModel):
-    """Base openAPI schema of user."""
-
-    username: str
-    email: str
-
-
-class UserWriteSchema(UserBaseSchema):
-    """OpenAPI schema of user to write."""
-
-    password: str
-
-
-class UserReadSchema(UserBaseSchema):
-    """OpenAPI schema of user to read."""
-
-    id: int

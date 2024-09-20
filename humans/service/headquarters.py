@@ -2,7 +2,8 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Query, joinedload
 
-from data.headquarter import Headquarter, HeadquarterWriteSchema
+from data.headquarter import Headquarter
+from data.headquarter_schemas import HeadquarterWriteSchema
 from service.shortcuts import create_group_task
 from service.tasks import create_hq_celery, increase_recruitment_celery
 import settings
