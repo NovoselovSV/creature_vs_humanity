@@ -15,6 +15,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl='users/login')
 
 redis_url = os.getenv('REDIS_URL', 'redis://redis:6379')
 
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 START_UNIT_HEALTH = 10
 START_UNIT_ATTACK = 20
 EARN_RECRUITMENT_PROCESS = 1
@@ -32,8 +33,8 @@ REDIS_HQ_WORKING_SECOND = 60
 AMOUNT_UNIT_TO_START = 3
 ENEMY_SALT = os.getenv('BEAST_SALT', 'I\'m the beast')
 HUMANS_SALT = os.getenv('HUMANS_SALT', 'I\'m only human')
-ATTACK_PORT = os.getenv('HUMANS_PORT', 8000)
-ATTACK_HOST = os.getenv('HUMANS_HOST', 'http://127.0.0.1')
+ATTACK_PORT = os.getenv('HUMANS_PORT', '8000')
+ATTACK_HOST = os.getenv('HUMANS_HOST', 'http://creatures')
 ATTACK_URL = f'{ATTACK_HOST}:{ATTACK_PORT}/'
 GROUP_ATTACK_ENDPOINT = 'beasts/{beast_id}/_defense/'
 CELERY_TASK_EXPIRE_SEC = 600

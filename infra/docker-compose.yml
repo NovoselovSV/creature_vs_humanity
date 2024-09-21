@@ -1,53 +1,71 @@
 version: '3.3'
 
 volumes:
-  pg_data_creature:
+  pg_data_creatures:
   pg_data_humans:
-  static:
+  creatures_static:
 
 networks:
-  creature_network:
+  creatures_network:
   humans_network:
 
 services:
   redis:
+    container_name: redis-cvh
     image: redis:7.4-alpine
     networks: 
-      - creature_network
+      - creatures_network
       - humans_network
-  db_creature:
+
+  db_creatures:
+    container_name: db_creatures-cvh
     image: postgres:13
-    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_CREATURES_DB:-creatures}
+      POSTGRES_USER: ${POSTGRES_CREATURES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_CREATURES_PASSWORD:-postgres}
+      DB_HOST: ${DB_CREATURES_HOST:-db_creatures}
+      DB_PORT: ${DB_CREATURES_PORT:-5432}
     volumes:
-      - pg_data_creature:/var/lib/postgresql/data
+      - pg_data_creatures:/var/lib/postgresql/data
     networks:
-      - creature_network
+      - creatures_network
   creatures:
+    container_name: creatures-cvh
     build: ../creatures/
     env_file: .env
     volumes:
-      - static:/creatures_static
+      - creatures_static:/creatures_static
     depends_on:
-      - db_creature
+      - db_creatures
       - redis
     networks: 
-      - creature_network
+      - creatures_network
   creatures_celery:
+    container_name: creatures_celery-cvh
     build: ../creatures/
     env_file: .env
     command: celery -A creatures worker -Q creatures -l info
     depends_on:
       - creatures
     networks: 
-      - creature_network
+      - creatures_network
+
   db_humans:
+    container_name: db_humans-cvh
     image: postgres:13
-    env_file: .env
+    environment:
+      POSTGRES_DB: ${DB_HUMANS_NAME:-humans}
+      POSTGRES_USER: ${DB_HUMANS_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${DB_HUMANS_PASSWORD:-postgres}
+      DB_HOST: ${DB_HUMANS_HOST:-db_humans}
+      DB_PORT: ${DB_HUMANS_PORT:-5432}
     volumes:
       - pg_data_humans:/var/lib/postgresql/data
     networks:
       - humans_network
   humans:
+    container_name: humans-cvh
     build: ../humans/
     env_file: .env
     depends_on:
@@ -56,6 +74,7 @@ services:
     networks: 
       - humans_network
   humans_celery:
+    container_name: humans_celery-cvh
     build: ../humans/
     env_file: .env
     command: celery -A celery_app.celery_app worker -Q humans -l info
@@ -63,13 +82,19 @@ services:
       - humans
     networks: 
       - humans_network
+
   gateway:
+    container_name: gateway-cvh
     image: nginx:1.25.4-alpine
     depends_on:
       - humans_celery
       - creatures_celery
     ports:
       - 80:80
+      - 81:81
     volumes:
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
-      - static:/usr/share/nginx/html/
+      - creatures_static:/usr/share/nginx/html/
+    networks: 
+      - creatures_network
+      - humans_network

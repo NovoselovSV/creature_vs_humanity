@@ -8,7 +8,7 @@ SECRET_KEY = os.getenv(
     'SECRET_KEY',
     'django-insecure--((konnfyz4%k_6c7u5^-l%k-gma!(1*qlp8#@j$g#h+5(+1na')
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split()
 
@@ -44,6 +44,15 @@ INTERNAL_IPS = [
     '127.0.0.1',
     'localhost',
 ]
+
+
+def show_toolbar(request):
+    return True
+
+
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': show_toolbar,
+}
 
 ROOT_URLCONF = 'creatures.urls'
 
@@ -81,7 +90,7 @@ SIMPLE_JWT = {
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
-REDIS_URL = os.getenv('REDIS_URL', 'redis://localhost:6379')
+REDIS_URL = os.getenv('REDIS_URL', 'redis://redis:6379')
 
 CACHES = {
     'default': {
@@ -96,10 +105,10 @@ CACHES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_CREATURES_DB', 'postgres'),
+        'NAME': os.getenv('POSTGRES_CREATURES_DB', 'creatures'),
         'USER': os.getenv('POSTGRES_CREATURES_USER', 'postgres'),
-        'PASSWORD': os.getenv('POSTGRES_CREATURES_PASSWORD', ''),
-        'HOST': os.getenv('DB_CREATURES_HOST', 'db_creature'),
+        'PASSWORD': os.getenv('POSTGRES_CREATURES_PASSWORD', 'postgres'),
+        'HOST': os.getenv('DB_CREATURES_HOST', 'db_creatures'),
         'PORT': os.getenv('DB_CREATURES_PORT', 5432)
     }
 }
@@ -107,6 +116,9 @@ DATABASES = {
 CELERY_BROKER_URL = REDIS_URL
 CELERY_RESULT_BACKEND = REDIS_URL
 CELERY_RESULT_EXPIRES = 600
+
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'collected_static'
 
 AUTH_USER_MODEL = 'core.User'
 
@@ -159,8 +171,8 @@ LVL_UP_ABILITY_NAME_VALUE = {
     'defense': 1,
     'health': 100
 }
-ATTACK_PORT = os.getenv('HUMANS_PORT', 8001)
-ATTACK_HOST = os.getenv('HUMANS_HOST', 'http://127.0.0.1')
+ATTACK_PORT = os.getenv('HUMANS_PORT', '8000')
+ATTACK_HOST = os.getenv('HUMANS_HOST', 'http://humans')
 ATTACK_URL = f'{ATTACK_HOST}:{ATTACK_PORT}/'
 GROUP_ATTACK_ENDPOINT = 'groups/{group_id}/_defense/'
 HQ_ATTACK_ENDPOINT = 'hq/{hq_id}/_defense/'

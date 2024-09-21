@@ -2,8 +2,7 @@ from django.conf import settings
 from django.contrib import admin
 from django.urls import include, path
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
+api_urls = [
     path('core/', include('core.urls')),
     path('areas/', include('area.urls')),
     path('beasts/', include('beast.urls')),
@@ -12,4 +11,9 @@ urlpatterns = [
 
 if settings.DEBUG:
     import debug_toolbar
-    urlpatterns += (path('__debug__/', include(debug_toolbar.urls)),)
+    api_urls += (path('__debug__/', include(debug_toolbar.urls)),)
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('api/', include(api_urls))
+]

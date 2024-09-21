@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from debug_toolbar.middleware import DebugToolbarMiddleware
 from sqladmin import Admin
@@ -9,7 +10,7 @@ import admin as a
 import service.events  # noqa
 import settings
 
-app = FastAPI(debug=True)
+app = FastAPI(debug=settings.DEBUG)
 
 app.add_middleware(DebugToolbarMiddleware, panels=[
                    'debug_toolbar.panels.sqlalchemy.SQLAlchemyPanel'])
@@ -25,6 +26,8 @@ admin = Admin(
     engine,
     authentication_backend=a.AdminAuth(
         settings.SECRET_KEY))
+
+app.mount('/static', StaticFiles(directory='./humans_static'), name='static')
 
 admin.add_view(a.UserAdmin)
 admin.add_view(a.RegionAdmin)

@@ -4,6 +4,7 @@ from functools import wraps
 import click
 
 from data.user import User
+from data.region import Region  # noqa
 from data.headquarter import Headquarter  # noqa
 from data.group import Group  # noqa
 from service.shortcuts import aget_db
