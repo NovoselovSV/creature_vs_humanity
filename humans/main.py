@@ -27,8 +27,6 @@ admin = Admin(
     authentication_backend=a.AdminAuth(
         settings.SECRET_KEY))
 
-app.mount('/static', StaticFiles(directory='./humans_static'), name='static')
-
 admin.add_view(a.UserAdmin)
 admin.add_view(a.RegionAdmin)
 admin.add_view(a.HeadquarterAdmin)
