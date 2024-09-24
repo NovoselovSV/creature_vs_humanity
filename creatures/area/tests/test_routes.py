@@ -10,6 +10,6 @@ from pytest_lazy_fixtures import lf
         lf('url_areas'),
     )
 )
-def test_pages_availability(client, url):
+def test_area_endpoints_availability(client, url):
     response = client.get(url)
     assert response.status_code == status.HTTP_200_OK
