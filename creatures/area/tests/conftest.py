@@ -1,3 +1,4 @@
+from functools import wraps
 from django.urls import reverse
 import pytest
 
@@ -30,3 +31,18 @@ def url_area(created_area):
 @pytest.fixture
 def url_areas(created_area):
     return reverse('area:area-list')
+
+
+@pytest.fixture
+def area_diff_expect(db, request):
+    def fabric(func):
+        @wraps(func)
+        def wrapper():
+            area_count_before = Area.objects.count()
+            func()
+            area_count_after = Area.objects.count()
+            assert (
+                area_count_after
+                - area_count_before == request.param)
+        return wrapper
+    return fabric
