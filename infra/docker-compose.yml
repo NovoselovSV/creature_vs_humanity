@@ -41,6 +41,7 @@ services:
       - redis
     networks: 
       - creatures_network
+      - humans_network
   creatures_celery:
     container_name: creatures_celery-cvh
     build: ../creatures/
@@ -73,6 +74,7 @@ services:
       - redis
     networks: 
       - humans_network
+      - creatures_network
   humans_celery:
     container_name: humans_celery-cvh
     build: ../humans/
