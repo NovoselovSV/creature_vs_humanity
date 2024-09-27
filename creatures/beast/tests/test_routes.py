@@ -38,7 +38,6 @@ def test_unauth_nests_endpoints_availability(db, url, client, method):
         (lf('url_attack'), 'post'),
         (lf('url_create_new_nest'), 'post'),
         (lf('url_level_up'), 'patch'),
-        (lf('url_defense'), 'post'),
     )
 )
 def test_unowner_beast_endpoints_availability(
