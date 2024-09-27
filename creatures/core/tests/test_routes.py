@@ -7,7 +7,7 @@ import pytest
     'url, http_client', (
         (lf('url_users'), lf('client')),
         (lf('url_user'), lf('client')),
-        (lf('url_me'), lf('created_client')),
+        (lf('url_me'), lf('created_owner_client')),
     )
 )
 def test_core_endpoints_availability(db, url, http_client):

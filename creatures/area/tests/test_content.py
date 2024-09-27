@@ -12,16 +12,16 @@ def test_area_has_content(client, url_area):
     assert 'defender_defense_impact' in response_json
 
 
-def test_area_content(client, url_area):
+def test_area_content(client, url_area, created_area):
     response = client.get(url_area)
     response_json = response.json()
-    assert response_json['name'] == conftest.AREA_NAME
-    assert response_json['description'] == conftest.AREA_DESCRIPTION
+    assert response_json['name'] == created_area.name
+    assert response_json['description'] == created_area.description
     assert (response_json['attacker_attack_impact']
-            == conftest.AREA_ATTACKER_ATTACK_IMPACT)
+            == created_area.attacker_attack_impact)
     assert (response_json['attacker_defense_impact']
-            == conftest.AREA_ATTACKER_DEFENSE_IMPACT)
+            == created_area.attacker_defense_impact)
     assert (response_json['defender_attack_impact']
-            == conftest.AREA_DEFENDER_ATTACK_IMPACT)
+            == created_area.defender_attack_impact)
     assert (response_json['defender_defense_impact']
-            == conftest.AREA_DEFENDER_DEFENSE_IMPACT)
+            == created_area.defender_defense_impact)

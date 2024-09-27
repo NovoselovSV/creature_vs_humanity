@@ -31,17 +31,17 @@ def test_anonymous_can_create_user(
                          indirect=('make_diff_expect',))
 @pytest.mark.parametrize('invalid_data',
                          (
-                             {'username': lf('created_user.username')},
-                             {'email': lf('created_user.email')},
-                             {'email': lf('created_user.email'),
-                              'username': lf('created_user.username')},
+                             {'username': lf('created_owner.username')},
+                             {'email': lf('created_owner.email')},
+                             {'email': lf('created_owner.email'),
+                              'username': lf('created_owner.username')},
                          ),)
 def test_cant_create_user_ununique(
         client,
         url_users,
         make_diff_expect,
         django_user_model,
-        created_user,
+        created_owner,
         invalid_data):
     @make_diff_expect
     def wrapped():
