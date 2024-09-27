@@ -171,6 +171,9 @@ LVL_UP_ABILITY_NAME_VALUE = {
     'defense': 1,
     'health': 100
 }
+FIRST_NEST_NAME = 'Nest of creatures'
+FIRST_AREA_NAME = 'Поляна'
+FIRST_AREA_DESCRIPTION = 'Поляна среди леса'
 ATTACK_PORT = os.getenv('HUMANS_PORT', '8000')
 ATTACK_HOST = os.getenv('HUMANS_HOST', 'http://humans')
 ATTACK_URL = f'{ATTACK_HOST}:{ATTACK_PORT}/'
