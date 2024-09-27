@@ -7,11 +7,10 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.mixins import Response
 
-from beast.attack import request_group_attack
-
 from . import serializers, tasks
 from .models import Beast
 from area.models import Area
+from beast.attack import request_group_attack
 from core.exceptions import BusyException, NotEnoughException
 from core.fight import fight
 from core.serializers import GroupAttackSerializer, HumansGroupSerializer
@@ -71,11 +70,11 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(methods=('patch',), detail=True)
     def level_up(self, request, pk):
+        beast = self.get_free_beast(request, pk)
         ability_name_serializer = serializers.BeastLevelUpAbilitySerializer(
             data=request.data)
         ability_name_serializer.is_valid(raise_exception=True)
         ability_name = ability_name_serializer.data['ability_name']
-        beast = self.get_free_beast(request, pk)
         if beast.experience < settings.NEW_LEVEL_EXPERIENTS:
             raise NotEnoughException(
                 'This beast must have at least '
@@ -111,7 +110,7 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
 
     def get_beast(self, request, pk):
         return get_object_or_404(
-            Beast.objects.all(), pk=pk)
+            self.get_queryset(), pk=pk)
 
     def get_free_beast(self, request, pk):
         beast = self.get_beast(request, pk)
