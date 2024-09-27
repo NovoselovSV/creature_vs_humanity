@@ -3,11 +3,11 @@ from pytest_lazy_fixtures import lf
 from rest_framework.mixins import status
 
 
-@pytest.mark.parametrize('user_diff_expect', (1,),
-                         indirect=('user_diff_expect',))
+@pytest.mark.parametrize('make_diff_expect', (1,),
+                         indirect=('make_diff_expect',))
 def test_anonymous_can_create_user(
-        client, url_users, user_diff_expect):
-    @user_diff_expect
+        client, url_users, django_user_model, make_diff_expect):
+    @make_diff_expect
     def wrapped():
         data_dict = {'email': 'some@thing.net',
                      'username': 'someone',
@@ -24,11 +24,11 @@ def test_anonymous_can_create_user(
         assert response_json['email'] == data_dict['email']
         assert response_json['username'] == data_dict['username']
 
-    wrapped()
+    wrapped(django_user_model)
 
 
-@pytest.mark.parametrize('user_diff_expect', (0,),
-                         indirect=('user_diff_expect',))
+@pytest.mark.parametrize('make_diff_expect', (0,),
+                         indirect=('make_diff_expect',))
 @pytest.mark.parametrize('invalid_data',
                          (
                              {'username': lf('created_user.username')},
@@ -37,8 +37,13 @@ def test_anonymous_can_create_user(
                               'username': lf('created_user.username')},
                          ),)
 def test_cant_create_user_ununique(
-        client, url_users, user_diff_expect, created_user, invalid_data):
-    @user_diff_expect
+        client,
+        url_users,
+        make_diff_expect,
+        django_user_model,
+        created_user,
+        invalid_data):
+    @make_diff_expect
     def wrapped():
         data_dict = {'email': invalid_data.get('email', 'some@thing.net'),
                      'username': invalid_data.get('username', 'someone'),
@@ -51,4 +56,4 @@ def test_cant_create_user_ununique(
         for key in invalid_data:
             assert key in response_json
 
-    wrapped()
+    wrapped(django_user_model)

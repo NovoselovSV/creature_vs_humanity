@@ -10,6 +10,7 @@ AREA_ATTACKER_ATTACK_IMPACT = 1
 AREA_ATTACKER_DEFENSE_IMPACT = 2
 AREA_DEFENDER_ATTACK_IMPACT = 3
 AREA_DEFENDER_DEFENSE_IMPACT = 4
+pytest_plugins = ('pytest_general.general_fixtures',)
 
 
 @pytest.fixture
@@ -31,18 +32,3 @@ def url_area(created_area):
 @pytest.fixture
 def url_areas(created_area):
     return reverse('area:area-list')
-
-
-@pytest.fixture
-def area_diff_expect(db, request):
-    def fabric(func):
-        @wraps(func)
-        def wrapper():
-            area_count_before = Area.objects.count()
-            func()
-            area_count_after = Area.objects.count()
-            assert (
-                area_count_after
-                - area_count_before == request.param)
-        return wrapper
-    return fabric

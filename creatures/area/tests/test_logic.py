@@ -4,11 +4,11 @@ from area.models import Area
 from creatures import settings
 
 
-@pytest.mark.parametrize('area_diff_expect', (1,),
-                         indirect=('area_diff_expect',))
+@pytest.mark.parametrize('make_diff_expect', (1,),
+                         indirect=('make_diff_expect',))
 def test_autocreation_nest(
-        django_user_model, area_diff_expect):
-    @area_diff_expect
+        django_user_model, make_diff_expect):
+    @make_diff_expect
     def wrapped():
         django_user_model.objects.create(
             username='someuser',
@@ -18,4 +18,4 @@ def test_autocreation_nest(
         assert area.name == settings.FIRST_AREA_NAME
         assert area.description == settings.FIRST_AREA_DESCRIPTION
 
-    wrapped()
+    wrapped(Area)

@@ -21,6 +21,7 @@ CREATED_NOT_OWNER_NEST_NAME = 'Nest name for not owner'
 CREATED_NEST_B_PROCESS = settings.BIRTH_PROCESS_TO_APPEAR
 NEST_AREA_NAME = 'Nest area name'
 NEST_AREA_DESCRIPTION = 'Nest area description'
+pytest_plugins = ('pytest_general.general_fixtures',)
 
 
 @pytest.fixture
@@ -77,12 +78,11 @@ def created_not_owner_nest(created_not_owner, created_nest_area):
 
 
 @pytest.fixture
-def delete_redis_n_celery_keys_nest(created_nest):
+def delete_redis_key_nest(created_nest):
     yield
     key = settings.BIRTH_KEY.format(nest=created_nest)
     celery_key = cache.get(key)
     Control(app).revoke(celery_key, terminate=True)
-    cache.delete(celery_key)
     cache.delete(key)
 
 
@@ -99,18 +99,3 @@ def url_nests():
 @pytest.fixture
 def url_birth(created_nest):
     return reverse('nest:nest-birth', args=(created_nest.id,))
-
-
-@pytest.fixture
-def nest_diff_expect(db, request):
-    def fabric(func):
-        @wraps(func)
-        def wrapper():
-            nest_count_before = Nest.objects.count()
-            func()
-            nest_count_after = Nest.objects.count()
-            assert (
-                nest_count_after
-                - nest_count_before == request.param)
-        return wrapper
-    return fabric

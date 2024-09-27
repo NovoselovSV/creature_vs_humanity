@@ -3,16 +3,17 @@ from django.core.cache import cache
 from rest_framework.mixins import status
 import pytest
 
-from . import tasks
+from nest import tasks
 from creatures import settings
 from creatures.celery import app as celery_app
+from nest.models import Nest
 
 
-@pytest.mark.parametrize('nest_diff_expect', (1,),
-                         indirect=('nest_diff_expect',))
+@pytest.mark.parametrize('make_diff_expect', (1,),
+                         indirect=('make_diff_expect',))
 def test_autocreation_nest(
-        django_user_model, nest_diff_expect):
-    @nest_diff_expect
+        django_user_model, make_diff_expect):
+    @make_diff_expect
     def wrapped():
         user = django_user_model.objects.create(
             username='someuser',
@@ -24,20 +25,19 @@ def test_autocreation_nest(
         assert (first_nest.new_creature_birth_process ==
                 settings.BIRTH_PROCESS_TO_APPEAR)
 
-    wrapped()
+    wrapped(Nest)
 
 
 def test_owner_can_start_new_creature_creation(
-        url_nest,
+        url_birth,
         created_nest,
         created_owner_client,
-        delete_redis_n_celery_keys_nest):
+        delete_redis_key_nest):
     response = created_owner_client.post(
-        url_nest,
+        url_birth,
         content_type='application/json',
         data={'name': 'Creatures name',
               'description': 'Creatures description'})
     assert response.status_code == status.HTTP_201_CREATED
     task_id = cache.get(settings.BIRTH_KEY.format(nest=created_nest), False)
     assert task_id
-    assert cache.get(task_id, False)

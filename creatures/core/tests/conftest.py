@@ -6,6 +6,7 @@ import pytest
 
 CREATED_USER_EMAIL = 'some@mail.com'
 CREATED_USER_USERNAME = 'some_username'
+pytest_plugins = ('pytest_general.general_fixtures',)
 
 
 @pytest.fixture
@@ -35,18 +36,3 @@ def created_client(created_user):
     client = Client()
     client.force_login(created_user)
     return client
-
-
-@pytest.fixture
-def user_diff_expect(db, request, django_user_model):
-    def fabric(func):
-        @wraps(func)
-        def wrapper():
-            user_count_before = django_user_model.objects.count()
-            func()
-            user_count_after = django_user_model.objects.count()
-            assert (
-                user_count_after
-                - user_count_before == request.param)
-        return wrapper
-    return fabric
