@@ -104,9 +104,9 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
         key = settings.BEAST_ACTION_KEY.format(beast=beast)
         cache.set(
             key,
-            task.apply_async(
+            str(task.apply_async(
                 (*args, key),
-                countdown=settings.BEAST_ACTING_TIME),
+                countdown=settings.BEAST_ACTING_TIME)),
             settings.BEAST_ACTING_TIME * settings.BUFFER_MULTIPLY)
 
     def get_beast(self, request, pk):

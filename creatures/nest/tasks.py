@@ -16,6 +16,10 @@ def create_creature(nest_id, new_creature_data, key):
         return
     if not Nest.objects.filter(id=nest_id).exists():
         return
+    if Beast.objects.filter(
+            owner_id=owner_id,
+            name=new_creature_data['name']).exists():
+        return
     Beast.objects.create(
         **new_creature_data,
         nest_id=nest_id,

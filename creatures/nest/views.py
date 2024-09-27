@@ -41,11 +41,11 @@ class NestViewSet(viewsets.ReadOnlyModelViewSet):
         key = settings.BIRTH_KEY.format(nest=nest)
         cache.set(
             key,
-            create_creature.apply_async(
+            str(create_creature.apply_async(
                 (nest.id,
                  new_creature_serializer.data,
                  key),
-                countdown=settings.BIRTH_TIME),
+                countdown=settings.BIRTH_TIME)),
             settings.BIRTH_TIME *
             settings.BUFFER_MULTIPLY)
         return Response(status=status.HTTP_201_CREATED)

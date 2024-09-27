@@ -6,7 +6,6 @@ from rest_framework import serializers
 from core.shortcuts import get_bytes_from_stringed
 
 from .models import Beast
-from creatures.celery import app
 from nest.serializers import NestReadSerializer
 
 

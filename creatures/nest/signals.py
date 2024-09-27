@@ -14,9 +14,10 @@ def add_first_nest(sender, instance, created, **kwargs):
     if not created:
         return
     if not Area.objects.count():
-        Area(name='Поляна', description='Поляна посреди леса').save()
+        Area(name=settings.FIRST_AREA_NAME,
+             description=settings.FIRST_AREA_DESCRIPTION).save()
     Nest(
         owner=instance,
-        name='Nest of creatures',
+        name=settings.FIRST_NEST_NAME,
         new_creature_birth_process=settings.BIRTH_PROCESS_TO_APPEAR,
         area=Area.objects.all().first()).save()
