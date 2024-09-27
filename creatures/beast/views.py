@@ -70,7 +70,7 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(methods=('patch',), detail=True)
     def level_up(self, request, pk):
-        beast = self.get_free_beast(request, pk)
+        beast = get_object_or_404(Beast.objects.all(), pk=pk)
         ability_name_serializer = serializers.BeastLevelUpAbilitySerializer(
             data=request.data)
         ability_name_serializer.is_valid(raise_exception=True)
