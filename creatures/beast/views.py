@@ -70,7 +70,7 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
 
     @action(methods=('patch',), detail=True)
     def level_up(self, request, pk):
-        beast = get_object_or_404(Beast.objects.all(), pk=pk)
+        beast = self.get_beast(request, pk)
         ability_name_serializer = serializers.BeastLevelUpAbilitySerializer(
             data=request.data)
         ability_name_serializer.is_valid(raise_exception=True)
@@ -86,7 +86,7 @@ class BeastViewSet(viewsets.ReadOnlyModelViewSet):
     @action(url_path='_defense', permission_classes=(permissions.AllowAny,),
             methods=('post',), detail=True)
     def defense(self, request, pk):
-        beast = self.get_beast(request, pk)
+        beast = get_object_or_404(Beast.objects.all(), pk=pk)
         group_serializer = HumansGroupSerializer(data=request.data)
         group_serializer.is_valid(raise_exception=True)
         if beast.in_nest:
