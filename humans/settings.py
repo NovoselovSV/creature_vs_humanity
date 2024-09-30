@@ -36,5 +36,5 @@ HUMANS_SALT = os.getenv('HUMANS_SALT', 'I\'m only human')
 ATTACK_PORT = os.getenv('BEAST_PORT', '8000')
 ATTACK_HOST = os.getenv('BEAST_HOST', 'http://creatures')
 ATTACK_URL = f'{ATTACK_HOST}:{ATTACK_PORT}/'
-GROUP_ATTACK_ENDPOINT = 'beasts/{beast_id}/_defense/'
+GROUP_ATTACK_ENDPOINT = 'api/beasts/{beast_id}/_defense/'
 CELERY_TASK_EXPIRE_SEC = 600
