@@ -85,11 +85,9 @@ def delete_redis_n_celery_key_beast(created_owner_beast, beast_key):
 
 
 @pytest.fixture
-def humans_group_data():
-    members = [{'id': -1, 'health': 10, 'attack': 1},
-               {'id': 0, 'health': 10, 'attack': 1}]
+def humans_group_data(group_members):
     hashed_group_parametrs = hashlib.sha256()
-    for member in members:
+    for member in group_members:
         hashed_group_parametrs.update(
             get_bytes_from_stringed(member.get('id', 0)))
         hashed_group_parametrs.update(
@@ -99,7 +97,7 @@ def humans_group_data():
     hashed_group_parametrs.update(
         get_bytes_from_stringed(
             settings.HUMANS_SALT))
-    return {'members': members,
+    return {'members': group_members,
             'signature': hashed_group_parametrs.hexdigest()}
 
 

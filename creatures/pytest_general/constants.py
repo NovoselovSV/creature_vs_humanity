@@ -19,3 +19,7 @@ NEST_AREA_NAME = 'Nest area name'
 NEST_AREA_DESCRIPTION = 'Nest area description'
 NEW_LEVEL_EXPERIENTS = settings.NEW_LEVEL_EXPERIENTS
 HUMANS_DEFENSE_URL = f'{settings.ATTACK_URL}{settings.GROUP_ATTACK_ENDPOINT}'
+MEMBERS_LIST = [{'id': -1, 'health': 10, 'attack': 1},
+                {'id': 0, 'health': 10, 'attack': 1}]
+STRONG_MEMBERS = [{'id': -1, 'health': 100, 'attack': 30},
+                  {'id': 0, 'health': 100, 'attack': 30}]

@@ -2,10 +2,10 @@ from django.test.client import Client
 from django.utils.functional import wraps
 import pytest
 
-from beast.models import Beast
-
 from . import constants
 from area.models import Area
+from beast.models import Beast
+from core.serializers import Human
 from nest.models import Nest
 
 
@@ -15,11 +15,12 @@ def make_diff_expect(db, request):
         @wraps(func)
         def wrapper(db_model):
             count_before = db_model.objects.count()
-            func()
+            returned_value = func()
             count_after = db_model.objects.count()
             assert (
                 count_after
                 - count_before == request.param)
+            return returned_value
         return wrapper
     return fabric
 
@@ -96,3 +97,13 @@ def humans_defense_get_url():
     def get_url(group_id):
         return constants.HUMANS_DEFENSE_URL.format(group_id=group_id)
     return get_url
+
+
+@pytest.fixture
+def group_members():
+    return constants.MEMBERS_LIST
+
+
+@pytest.fixture
+def strong_group_members():
+    return constants.STRONG_MEMBERS
