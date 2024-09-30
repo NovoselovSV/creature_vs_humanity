@@ -17,3 +17,5 @@ CREATED_BEAST_NAME = 'New beast'
 CREATED_BEAST_DESCRIPTION = 'New beast description'
 NEST_AREA_NAME = 'Nest area name'
 NEST_AREA_DESCRIPTION = 'Nest area description'
+NEW_LEVEL_EXPERIENTS = settings.NEW_LEVEL_EXPERIENTS
+HUMANS_DEFENSE_URL = f'{settings.ATTACK_URL}{settings.GROUP_ATTACK_ENDPOINT}'

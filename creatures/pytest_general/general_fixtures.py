@@ -87,4 +87,12 @@ def created_owner_beast(created_owner, created_nest):
         owner=created_owner,
         name=constants.CREATED_BEAST_NAME,
         description=constants.CREATED_BEAST_DESCRIPTION,
+        experience=constants.NEW_LEVEL_EXPERIENTS,
         nest=created_nest)
+
+
+@pytest.fixture
+def humans_defense_get_url():
+    def get_url(group_id):
+        return constants.HUMANS_DEFENSE_URL.format(group_id=group_id)
+    return get_url

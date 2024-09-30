@@ -32,7 +32,7 @@ def test_owner_can_start_new_creature_creation(
         url_birth,
         created_nest,
         created_owner_client,
-        delete_redis_key_nest):
+        delete_redis_n_celery_key_nest):
     response = created_owner_client.post(
         url_birth,
         content_type='application/json',

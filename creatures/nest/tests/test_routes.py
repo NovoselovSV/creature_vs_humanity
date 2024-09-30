@@ -17,7 +17,7 @@ def test_nests_endpoints_availability(url, created_owner_client):
 def test_birth_endpoint_availability(
         url_birth,
         created_owner_client,
-        delete_redis_key_nest):
+        delete_redis_n_celery_key_nest):
     response = created_owner_client.post(
         url_birth,
         content_type='application/json',

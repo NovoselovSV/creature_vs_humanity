@@ -1,8 +1,8 @@
 from functools import wraps
+
 from django.test.client import Client
 from django.core.cache import cache
 
-from celery.result import AsyncResult
 from celery.app.control import Control
 from rest_framework.viewsets import reverse
 import pytest
@@ -16,7 +16,7 @@ pytest_plugins = ('pytest_general.general_fixtures',)
 
 
 @pytest.fixture
-def delete_redis_key_nest(created_nest):
+def delete_redis_n_celery_key_nest(created_nest):
     yield
     key = settings.BIRTH_KEY.format(nest=created_nest)
     celery_key = cache.get(key)
