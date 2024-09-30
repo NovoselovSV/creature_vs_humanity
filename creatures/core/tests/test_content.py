@@ -25,7 +25,7 @@ def test_user_has_content(url, http_client):
         (lf('url_me'), lf('created_owner_client')),
     )
 )
-def test_area_content(url, http_client, created_owner):
+def test_user_real_content(url, http_client, created_owner):
     response = http_client.get(url)
     response_json = response.json()
     assert response_json['email'] == created_owner.email
