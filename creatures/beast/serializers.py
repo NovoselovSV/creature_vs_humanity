@@ -3,9 +3,8 @@ import hashlib
 from django.conf import settings
 from rest_framework import serializers
 
-from core.shortcuts import get_bytes_from_stringed
-
 from .models import Beast
+from core.shortcuts import get_bytes_from_stringed
 from nest.serializers import NestReadSerializer
 
 

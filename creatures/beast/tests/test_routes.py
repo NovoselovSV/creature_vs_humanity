@@ -48,14 +48,12 @@ def test_level_up_beast_endpoints_availability(
 
 
 def test_defense_beast_endpoint_availability(
-        db, url_defense, client, beast_key, humans_group_data):
-    cache.set(beast_key, 'some-celery-task-id', 10)
+        db, url_defense, beast_busy, client, beast_key, humans_group_data):
     response = client.post(
         url_defense,
         content_type='application/json',
         data=humans_group_data)
     assert response.status_code == status.HTTP_201_CREATED
-    cache.delete(beast_key)
 
 
 def test_attack_beast_endpoint_availability(

@@ -1,7 +1,3 @@
-import pytest
-from pytest_lazy_fixtures import lf
-
-
 def test_beast_has_content(
         db,
         url_beast,

@@ -107,3 +107,18 @@ def group_members():
 @pytest.fixture
 def strong_group_members():
     return constants.STRONG_MEMBERS
+
+
+@pytest.fixture
+def comparing_object_parametrs_func():
+    def comparing(*args, comparing_parameters_names=None):
+        if not comparing_parameters_names or not args:
+            return
+        first_obj = args[0]
+        for parameter in comparing_parameters_names:
+            for obj in args:
+                assert (
+                    getattr(first_obj, parameter) ==
+                    getattr(obj, parameter)
+                )
+    return comparing

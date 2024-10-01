@@ -3,9 +3,10 @@ import hashlib
 from django.core.cache import cache
 from django.urls import reverse
 
+from celery.app.control import Control
 import pytest
 
-from celery.app.control import Control
+from beast.models import Beast
 from core.shortcuts import get_bytes_from_stringed
 from creatures import settings
 from creatures.celery import app
@@ -115,3 +116,39 @@ def attack_response_data():
     return {'experience': experience,
             'health': health,
             'signature': hashed_beast_parametrs.hexdigest()}
+
+
+@pytest.fixture
+def set_of_beasts(created_owner, created_nest):
+    beasts = (
+        Beast(
+            owner=created_owner,
+            name=f'Beast number {index}',
+            description=f'Beast {index} description',
+            nest=created_nest)
+        for index
+        in range(
+            settings.MIN_CREATURE_TO_NEW_NEST +
+            settings.MIN_CREATURE_TO_NEW_NEST // 2)
+    )
+    Beast.objects.bulk_create(beasts)
+
+
+@pytest.fixture
+def created_owner_weak_beast(created_owner, created_nest):
+    return Beast.objects.create(
+        owner=created_owner,
+        name='Weak beast',
+        description='Weak beast description',
+        health=1,
+        attack=1,
+        defense=1,
+        experience=1,
+        nest=created_nest)
+
+
+@pytest.fixture
+def beast_busy(beast_key):
+    cache.set(beast_key, 'task_id', 10)
+    yield
+    cache.delete(beast_key)
