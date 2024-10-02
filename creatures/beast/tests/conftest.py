@@ -148,7 +148,7 @@ def created_owner_weak_beast(created_owner, created_nest):
 
 
 @pytest.fixture
-def beast_busy(beast_key):
+def is_beast_busy(beast_key):
     cache.set(beast_key, 'task_id', 10)
-    yield
+    yield True
     cache.delete(beast_key)

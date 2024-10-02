@@ -48,7 +48,7 @@ def test_level_up_beast_endpoints_availability(
 
 
 def test_defense_beast_endpoint_availability(
-        db, url_defense, beast_busy, client, beast_key, humans_group_data):
+        db, url_defense, is_beast_busy, client, beast_key, humans_group_data):
     response = client.post(
         url_defense,
         content_type='application/json',

@@ -24,9 +24,9 @@ from creatures import settings
     )
 )
 @pytest.mark.parametrize(
-    'beast_business, is_beast_busy', (
-        (lf('beast_busy'), True),
-        (None, False),
+    'is_beast_in_business', (
+        lf('is_beast_busy'),
+        False,
     )
 )
 def test_start_patch_beast_task_possibility(
@@ -34,19 +34,19 @@ def test_start_patch_beast_task_possibility(
         created_owner_beast,
         client,
         expected_status,
-        beast_business,
-        is_beast_busy,
+        is_beast_in_business,
         beast_key,
         delete_redis_n_celery_key_beast):
     response = client.patch(
         url,
         content_type='application/json')
-    if is_beast_busy and expected_status == status.HTTP_200_OK:
+    if is_beast_in_business and expected_status == status.HTTP_200_OK:
         expected_status = status.HTTP_400_BAD_REQUEST
     assert response.status_code == expected_status
     task_id = cache.get(beast_key, False)
     assert (task_id
-            if response.status_code == status.HTTP_200_OK or is_beast_busy
+            if response.status_code == status.HTTP_200_OK
+            or is_beast_in_business
             else not task_id)
 
 
@@ -138,9 +138,9 @@ def test_level_up_possibility(
     )
 )
 @pytest.mark.parametrize(
-    'beast_business, is_beast_busy', (
-        (lf('beast_busy'), True),
-        (None, False),
+    'is_beast_in_business', (
+        lf('is_beast_busy'),
+        False,
     )
 )
 def test_create_new_nest_possibility(
@@ -148,8 +148,7 @@ def test_create_new_nest_possibility(
         created_owner_beast,
         client,
         expected_status,
-        beast_business,
-        is_beast_busy,
+        is_beast_in_business,
         created_area,
         enough_beasts,
         beast_key,
@@ -161,19 +160,20 @@ def test_create_new_nest_possibility(
             'name': 'Some nest name',
             'description': 'Some nest description',
             'area': created_area.id})
-    if is_beast_busy and expected_status == status.HTTP_201_CREATED:
+    if is_beast_in_business and expected_status == status.HTTP_201_CREATED:
         expected_status = status.HTTP_400_BAD_REQUEST
     assert response.status_code == expected_status
     task_id = cache.get(beast_key, False)
     assert (task_id
-            if response.status_code == status.HTTP_201_CREATED or is_beast_busy
+            if response.status_code == status.HTTP_201_CREATED
+            or is_beast_in_business
             else not task_id)
 
 
 @pytest.mark.parametrize(
-    'beast_business, is_beast_busy', (
-        (lf('beast_busy'), True),
-        (None, False),
+    'is_beast_in_business', (
+        lf('is_beast_busy'),
+        False,
     )
 )
 @pytest.mark.parametrize(
@@ -189,17 +189,16 @@ def test_create_new_nest_possibility(
 )
 def test_defense_action(
         url_defense,
-        beast_business,
-        is_beast_busy,
+        is_beast_in_business,
         post_data,
         is_post_data_correct,
         client,
         created_owner_beast):
     response = client.post(
-            url_defense,
-            content_type='application/json',
-            data=post_data)
-    correct_request = is_beast_busy and is_post_data_correct
+        url_defense,
+        content_type='application/json',
+        data=post_data)
+    correct_request = is_beast_in_business and is_post_data_correct
     expected_status = (status.HTTP_201_CREATED
                        if correct_request
                        else status.HTTP_400_BAD_REQUEST)
@@ -211,3 +210,31 @@ def test_defense_action(
     assert 'members' in response_json
     members = response_json['members']
     assert len(members) > 0
+
+
+@pytest.mark.parametrize(
+    'is_beast_in_business', (
+        lf('is_beast_busy'),
+        False,
+    )
+)
+def test_beast_attack(
+        requests_mock,
+        humans_defense_get_url,
+        url_attack,
+        is_beast_in_business,
+        created_owner_client,
+        attack_response_data):
+    attacked_group_id = 0
+    expected_status = (status.HTTP_400_BAD_REQUEST
+                       if is_beast_in_business
+                       else status.HTTP_201_CREATED)
+    requests_mock.post(
+        humans_defense_get_url(attacked_group_id),
+        status_code=status.HTTP_201_CREATED,
+        json=attack_response_data)
+    response = created_owner_client.post(
+        url_attack,
+        content_type='application/json',
+        data={'id': attacked_group_id})
+    assert response.status_code == expected_status
