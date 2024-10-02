@@ -10,10 +10,13 @@ from creatures import settings
 
 def request_group_attack(beast, target_id):
     attack_serializer = BeastAttackSerializer(beast)
-    r = requests.post(
-        f'{settings.ATTACK_URL}'
-        f'{settings.GROUP_ATTACK_ENDPOINT.format(group_id=target_id)}',
-        data=JSONRenderer().render(attack_serializer.data))
+    try:
+        r = requests.post(
+            f'{settings.ATTACK_URL}'
+            f'{settings.GROUP_ATTACK_ENDPOINT.format(group_id=target_id)}',
+            data=JSONRenderer().render(attack_serializer.data))
+    except Exception:
+        raise ConnectionException('Something went wrong')
     if r.status_code != status.HTTP_201_CREATED:
         raise ConnectionException(r.json())
     response_serializer = AttackResponseSerializer(data=r.json())

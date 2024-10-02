@@ -111,5 +111,5 @@ class AttackResponseSerializer(serializers.Serializer):
             get_bytes_from_stringed(settings.BEAST_SALT))
         if beast_response_data.get('signature',
                                    None) != hashed_beast_parametrs.hexdigest():
-            serializers.ValidationError('Signature error')
+            raise serializers.ValidationError('Signature error')
         return beast_response_data

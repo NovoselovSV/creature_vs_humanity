@@ -105,7 +105,23 @@ def humans_group_data(group_members):
 @pytest.fixture
 def attack_response_data():
     experience = 100
-    health = 200
+    health = 20
+    hashed_beast_parametrs = hashlib.sha256()
+    hashed_beast_parametrs.update(
+        get_bytes_from_stringed(health))
+    hashed_beast_parametrs.update(
+        get_bytes_from_stringed(experience))
+    hashed_beast_parametrs.update(
+        get_bytes_from_stringed(settings.BEAST_SALT))
+    return {'experience': experience,
+            'health': health,
+            'signature': hashed_beast_parametrs.hexdigest()}
+
+
+@pytest.fixture
+def attack_lose_response_data():
+    experience = 100
+    health = -20
     hashed_beast_parametrs = hashlib.sha256()
     hashed_beast_parametrs.update(
         get_bytes_from_stringed(health))
