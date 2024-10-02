@@ -168,3 +168,17 @@ def is_beast_busy(beast_key):
     cache.set(beast_key, 'task_id', 10)
     yield True
     cache.delete(beast_key)
+
+
+@pytest.fixture
+def new_nest_data(created_area):
+    return {'name': 'Some nest name',
+            'area': created_area.id
+            }
+
+
+@pytest.fixture
+def new_nest_task_data(created_area):
+    return {'name': 'Some nest name',
+            'area': {'id': created_area.id}
+            }

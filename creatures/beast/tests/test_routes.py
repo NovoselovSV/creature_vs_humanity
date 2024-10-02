@@ -47,6 +47,20 @@ def test_level_up_beast_endpoints_availability(
     assert response.status_code == status.HTTP_200_OK
 
 
+def test_create_new_nest_endpoint_availability(
+        url_create_new_nest,
+        created_owner_client,
+        created_area,
+        set_of_beasts,
+        new_nest_data,
+        delete_redis_n_celery_key_beast):
+    response = created_owner_client.post(
+        url_create_new_nest,
+        content_type='application/json',
+        data=new_nest_data)
+    assert response.status_code == status.HTTP_201_CREATED
+
+
 def test_defense_beast_endpoint_availability(
         db, url_defense, is_beast_busy, client, beast_key, humans_group_data):
     response = client.post(

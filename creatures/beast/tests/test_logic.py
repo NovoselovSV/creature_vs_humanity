@@ -148,6 +148,7 @@ def test_create_new_nest_possibility(
         created_owner_beast,
         client,
         expected_status,
+        new_nest_data,
         is_beast_in_business,
         created_area,
         enough_beasts,
@@ -156,10 +157,7 @@ def test_create_new_nest_possibility(
     response = client.post(
         url_create_new_nest,
         content_type='application/json',
-        data={
-            'name': 'Some nest name',
-            'description': 'Some nest description',
-            'area': created_area.id})
+        data=new_nest_data)
     if is_beast_in_business and expected_status == status.HTTP_201_CREATED:
         expected_status = status.HTTP_400_BAD_REQUEST
     assert response.status_code == expected_status
