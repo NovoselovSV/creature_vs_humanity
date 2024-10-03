@@ -1,11 +1,13 @@
 from django.test.client import Client
 from django.utils.functional import wraps
+
 import pytest
+from celery.contrib.testing import worker
 
 from . import constants
 from area.models import Area
 from beast.models import Beast
-from core.serializers import Human
+from creatures.celery import app as celery_app
 from nest.models import Nest
 
 
