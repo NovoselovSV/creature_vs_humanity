@@ -3,10 +3,10 @@ from typing import List
 from sqlalchemy import Column, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, relationship
 
-from SQL_db.database import Base
-from web.shortcuts import get_redis_group_key
 import data
 import settings
+from SQL_db.database import Base
+from web.shortcuts import get_redis_group_key
 
 
 class Group(Base):

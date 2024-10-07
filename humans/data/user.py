@@ -4,8 +4,8 @@ from sqlalchemy import Boolean, Column, Integer, String
 from sqlalchemy.orm import Mapped, relationship
 from sqlalchemy_utils import EmailType, PasswordType
 
-from SQL_db.database import Base, engine
 import data
+from SQL_db.database import Base, engine
 
 
 class User(Base):

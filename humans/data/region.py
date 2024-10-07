@@ -3,8 +3,8 @@ from typing import List
 from sqlalchemy import Column, Integer, String, Text
 from sqlalchemy.orm import Mapped, relationship
 
-from SQL_db.database import Base, engine
 import data
+from SQL_db.database import Base, engine
 
 
 class Region(Base):
