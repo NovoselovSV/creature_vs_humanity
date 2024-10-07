@@ -7,7 +7,7 @@ from rest_framework.mixins import status
                          indirect=('make_diff_expect',))
 def test_anonymous_can_create_user(
         client, url_users, django_user_model, make_diff_expect):
-    @make_diff_expect
+    @make_diff_expect(django_user_model)
     def wrapped():
         data_dict = {'email': 'some@thing.net',
                      'username': 'someone',
@@ -24,7 +24,7 @@ def test_anonymous_can_create_user(
         assert response_json['email'] == data_dict['email']
         assert response_json['username'] == data_dict['username']
 
-    wrapped(django_user_model)
+    wrapped()
 
 
 @pytest.mark.parametrize('make_diff_expect', (0,),
@@ -43,7 +43,7 @@ def test_cant_create_user_ununique(
         django_user_model,
         created_owner,
         invalid_data):
-    @make_diff_expect
+    @make_diff_expect(django_user_model)
     def wrapped():
         data_dict = {'email': invalid_data.get('email', 'some@thing.net'),
                      'username': invalid_data.get('username', 'someone'),
@@ -56,4 +56,4 @@ def test_cant_create_user_ununique(
         for key in invalid_data:
             assert key in response_json
 
-    wrapped(django_user_model)
+    wrapped()

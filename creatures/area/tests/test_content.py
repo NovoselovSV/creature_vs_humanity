@@ -1,6 +1,3 @@
-from area.tests import conftest
-
-
 def test_area_has_content(client, url_area):
     response = client.get(url_area)
     response_json = response.json()

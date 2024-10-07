@@ -35,7 +35,7 @@ def test_uncorrect_birth(
         created_nest,
         make_diff_expect,
         incorrect_parametr):
-    @make_diff_expect
+    @make_diff_expect(Beast)
     def wrapped():
         if 'name' in incorrect_parametr:
             Beast.objects.create(
@@ -51,4 +51,4 @@ def test_uncorrect_birth(
              'description': NEW_C_CREATURES_DESCRIPTION},
             key))
 
-    wrapped(Beast)
+    wrapped()

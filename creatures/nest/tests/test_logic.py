@@ -13,7 +13,7 @@ from nest.models import Nest
                          indirect=('make_diff_expect',))
 def test_autocreation_nest(
         django_user_model, make_diff_expect):
-    @make_diff_expect
+    @make_diff_expect(Nest)
     def wrapped():
         user = django_user_model.objects.create(
             username='someuser',
@@ -25,7 +25,7 @@ def test_autocreation_nest(
         assert (first_nest.new_creature_birth_process ==
                 settings.BIRTH_PROCESS_TO_APPEAR)
 
-    wrapped(Nest)
+    wrapped()
 
 
 def test_owner_can_start_new_creature_creation(

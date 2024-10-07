@@ -73,7 +73,7 @@ def test_create_nest_task(
     before_beast = copy(created_owner_beast)
     cache.set(beast_key, 'task id', 10)
 
-    @make_diff_expect
+    @make_diff_expect(Nest)
     def wrapped():
         tasks.create_nest.apply(args=(
             created_owner_beast.id,
@@ -81,7 +81,7 @@ def test_create_nest_task(
             new_nest_task_data,
             beast_key))
 
-    wrapped(Nest)
+    wrapped()
     new_nest = Nest.objects.filter(
         name=new_nest_task_data['name'],
         owner=created_owner.id).first()
@@ -122,7 +122,7 @@ def test_incorrect_create_nest_task(
         created_area,
         new_nest_task_data,
         beast_key):
-    @make_diff_expect
+    @make_diff_expect(Nest)
     def wrapped():
         tasks.create_nest.apply(
             args=(
@@ -135,4 +135,4 @@ def test_incorrect_create_nest_task(
                 new_nest_task_data,
                 beast_key))
 
-    wrapped(Nest)
+    wrapped()

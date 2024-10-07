@@ -13,18 +13,20 @@ from nest.models import Nest
 
 @pytest.fixture
 def make_diff_expect(db, request):
-    def fabric(func):
-        @wraps(func)
-        def wrapper(db_model):
-            count_before = db_model.objects.count()
-            returned_value = func()
-            count_after = db_model.objects.count()
-            assert (
-                count_after
-                - count_before == request.param)
-            return returned_value
-        return wrapper
-    return fabric
+    def diff_factory_to_model(db_model):
+        def fabric(func):
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                count_before = db_model.objects.count()
+                returned_value = func()
+                count_after = db_model.objects.count()
+                assert (
+                    count_after
+                    - count_before == request.param)
+                return returned_value
+            return wrapper
+        return fabric
+    return diff_factory_to_model
 
 
 @pytest.fixture

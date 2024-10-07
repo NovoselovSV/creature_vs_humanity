@@ -20,14 +20,14 @@ def test_beast_win(
     before_experience = created_owner_beast.experience
     before_health = created_owner_beast.health
 
-    @make_diff_expect
+    @make_diff_expect(Beast)
     def wrapped():
         return fight(
             created_owner_beast,
             [Human(**member) for member in group_members],
             created_area)
 
-    response_serializer = wrapped(Beast)
+    response_serializer = wrapped()
     created_owner_beast.refresh_from_db()
     assert created_owner_beast.health > 0
     assert created_owner_beast.health < before_health
@@ -46,14 +46,14 @@ def test_humans_win(
         make_diff_expect):
     before_group = strong_group_members.copy()
 
-    @make_diff_expect
+    @make_diff_expect(Beast)
     def wrapped():
         return fight(
             created_owner_beast,
             [Human(**member) for member in strong_group_members],
             created_area)
 
-    response_serializer = wrapped(Beast)
+    response_serializer = wrapped()
     for index, member in enumerate(response_serializer.data['members']):
         before_member = before_group[index]
         assert member['health'] <= before_member['health']
@@ -75,11 +75,11 @@ def test_random_impact(
                       {'id': -1, 'health': 10, 'attack': 30},
                       {'id': 0, 'health': 10, 'attack': 30})
 
-    @make_diff_expect
+    @make_diff_expect(Beast)
     def wrapped():
         return fight(
             created_owner_beast,
             [Human(**member) for member in specific_group],
             created_area)
 
-    wrapped(Beast)
+    wrapped()

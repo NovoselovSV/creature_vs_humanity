@@ -30,11 +30,11 @@ def test_attack_beast_normal(
         json=attack_response)
     before_beast = copy(created_owner_beast)
 
-    @make_diff_expect
+    @make_diff_expect(Beast)
     def wrapped():
         request_group_attack(created_owner_beast, attacked_group_id)
 
-    wrapped(Beast)
+    wrapped()
     after_beast = Beast.objects.filter(pk=created_owner_beast.id).first()
     assert bool(after_beast) == is_beast_win
     if is_beast_win:
