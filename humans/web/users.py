@@ -1,18 +1,18 @@
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 
+import jwt
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
-import jwt
 
+import settings as project_settings
 from . import shortcuts as sc
 from SQL_db.database import get_db
 from data.general_data import ErrorMessageSchema
 from data.login_schemas import Token
 from data.user_schemas import UserReadSchema, UserWriteSchema
 from service.users import create_user, get_user, get_user_username, get_users
-import settings as project_settings
 
 
 router = APIRouter(prefix='/users')
