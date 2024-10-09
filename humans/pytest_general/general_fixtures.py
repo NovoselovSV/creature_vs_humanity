@@ -1,9 +1,10 @@
 import hashlib
+from functools import wraps
 
 import pytest
 import pytest_asyncio
 from fastapi.testclient import TestClient
-from sqlalchemy import delete
+from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -36,7 +37,7 @@ user = UserWriteSchema(
     is_admin=False)
 
 
-async def override_db():
+async def override_db() -> AsyncSession:
     async with TestingSessionLocal() as session:
         yield session
 
@@ -63,6 +64,7 @@ async def get_temporal_user(get_test_db):
     app.dependency_overrides[get_current_user] = lambda: user_db
     yield user_db
     await get_test_db.execute(delete(User).where(User.id == user_db.id))
+    await get_test_db.commit()
 
 
 @pytest_asyncio.fixture
@@ -117,3 +119,23 @@ def enemy_response_schema_data():
 def group_schema_data():
     return {'members': [UnitAttackSchema(
         **unit_data) for unit_data in constants.GROUP_MEMBERS_SCHEMA_DATA]}
+
+
+@pytest.fixture
+def make_diff_expect(get_test_db, request):
+    def diff_factory_to_model(db_model):
+        def fabric(wrapped_function):
+            @wraps(wrapped_function)
+            async def wrapper(*args, **kwargs):
+                count_before = (await get_test_db.execute(
+                    select(func.count()).select_from(db_model))).scalar()
+                returned_value = wrapped_function()
+                count_after = (await get_test_db.execute(
+                    select(func.count()).select_from(db_model))).scalar()
+                assert (
+                    count_after
+                    - count_before == request.param)
+                return returned_value
+            return wrapper
+        return fabric
+    return diff_factory_to_model
