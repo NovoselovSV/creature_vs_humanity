@@ -13,3 +13,4 @@ GROUP_MEMBERS_SCHEMA_DATA = [
 GROUP_MEMBERS_RESPONSE_SCHEMA_DATA = [
     {'id': -1, 'experience': 10, 'health': 10},
     {'id': 0, 'experience': 10, 'health': 10}]
+REGION_DATA = {'name': 'RegionName', 'description': 'Region description'}

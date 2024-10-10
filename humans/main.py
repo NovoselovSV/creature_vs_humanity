@@ -1,19 +1,19 @@
+import os
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
-
 from debug_toolbar.middleware import DebugToolbarMiddleware
 from sqladmin import Admin
 
-from SQL_db.database import Base, engine
-from web import (groups, headquarters, regions, units, users)
 import admin as a
 import service.events  # noqa
 import settings
+from SQL_db.database import Base, engine
+from web import (groups, headquarters, regions, units, users)
 
 app = FastAPI(debug=settings.DEBUG)
 
-app.add_middleware(DebugToolbarMiddleware, panels=[
-                   'debug_toolbar.panels.sqlalchemy.SQLAlchemyPanel'])
+if 'PYTEST_VERSION' not in os.environ:
+    app.add_middleware(DebugToolbarMiddleware, panels=[
+        'debug_toolbar.panels.sqlalchemy.SQLAlchemyPanel'])
 
 app.include_router(users.router)
 app.include_router(regions.router)

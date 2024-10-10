@@ -8,12 +8,12 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
+import data as project_data
 import settings
 from . import constants
 from data.enemy_schemas import EnemySchema
 from data.shortcuts import get_bytes_from_stringed
 from data.unit_schemas import UnitAttackSchema
-from data.user import User
 from data.user_schemas import UserWriteSchema
 from main import app
 from service.login import get_current_user
@@ -63,7 +63,22 @@ async def get_temporal_user(get_test_db):
     user_db = await create_user(get_test_db, user)
     app.dependency_overrides[get_current_user] = lambda: user_db
     yield user_db
-    await get_test_db.execute(delete(User).where(User.id == user_db.id))
+    await get_test_db.execute(
+        delete(project_data.user.User).
+        where(project_data.user.User.id == user_db.id))
+    await get_test_db.commit()
+
+
+@pytest_asyncio.fixture
+async def get_temporal_region(get_test_db):
+    db_region = project_data.region.Region(**constants.REGION_DATA)
+    get_test_db.add(db_region)
+    await get_test_db.commit()
+    await get_test_db.refresh(db_region)
+    yield db_region
+    await get_test_db.execute(
+        delete(project_data.region.Region).
+        where(project_data.region.Region.id == db_region.id))
     await get_test_db.commit()
 
 
@@ -122,7 +137,7 @@ def group_schema_data():
 
 
 @pytest.fixture
-def make_diff_expect(get_test_db, request):
+def amake_diff_expect(get_test_db, request):
     def diff_factory_to_model(db_model):
         def fabric(wrapped_function):
             @wraps(wrapped_function)
@@ -139,3 +154,20 @@ def make_diff_expect(get_test_db, request):
             return wrapper
         return fabric
     return diff_factory_to_model
+
+
+@pytest.fixture
+def check_compare_object_with_response():
+    def checking(json, real_object):
+        if isinstance(json, list):
+            assert next(
+                obj_data
+                for obj_data
+                in json
+                if all(map(
+                    lambda key: obj_data[key] == getattr(real_object, key),
+                    obj_data)))
+            return
+        for key, value in json.items():
+            assert value == getattr(real_object, key)
+    return checking
